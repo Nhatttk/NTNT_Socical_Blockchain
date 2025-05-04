@@ -12,6 +12,7 @@ import { Spinner, Navbar, Nav, Button, Container } from 'react-bootstrap'
 import logo from './logo.png'
 import Home from './Home.js'
 import Profile from './Profile.js'
+import MyPosts from './MyPosts.js'
 import './App.css';
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
                 <Nav className="me-auto">
                   <Nav.Link as={Link} to="/">Home</Nav.Link>
                   <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
+                  <Nav.Link as={Link} to="/my-posts">My Posts</Nav.Link>
                 </Nav>
                 <Nav>
                   {account ? (
@@ -93,6 +95,9 @@ function App() {
               } />
               <Route path="/profile" element={
                 <Profile contract={contract} />
+              } />
+              <Route path="/my-posts" element={
+                <MyPosts contract={contract} />
               } />
             </Routes>
           )}
