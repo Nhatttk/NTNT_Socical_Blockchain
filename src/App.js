@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Link,
   BrowserRouter,
@@ -6,19 +6,21 @@ import {
   Route,
   Navigate,
   useLocation,
-  useNavigate
+  useNavigate,
 } from "react-router-dom";
-import Home from './Home.js';
-import Profile from './Profile.js';
-import Connect from './container/connect/Connect.js';
-import { WalletProvider } from './context/WalletContext';
-import { useWallet } from './hooks/useWallet';
-import logo from './logo.png';
-import './App.scss';
+import Home from "./Home.js";
+import Profile from "./Profile.js";
+import Connect from "./container/connect/Connect.js";
+import { WalletProvider } from "./context/WalletContext";
+import { useWallet } from "./hooks/useWallet";
+import logo from "./logo.png";
+import MyPosts from "./MyPosts.js";
+import "./App.scss";
 
 const ProtectedRoute = ({ children }) => {
-  const { account, loading, initializing, isMetamaskInstalled, networkError } = useWallet();
-  
+  const { account, loading, initializing, isMetamaskInstalled, networkError } =
+    useWallet();
+
   if (initializing || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -37,7 +39,7 @@ const ProtectedRoute = ({ children }) => {
           <h4 className="text-lg font-bold">Network Error</h4>
           <p className="my-2">{networkError}</p>
           <hr className="my-2 border-red-200" />
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 border border-red-500 text-red-500 rounded hover:bg-red-50 transition-colors"
           >
@@ -47,7 +49,7 @@ const ProtectedRoute = ({ children }) => {
       </div>
     );
   }
-  
+
   if (!isMetamaskInstalled) {
     return (
       <div className="max-w-4xl mx-auto mt-8 px-4">
@@ -55,10 +57,10 @@ const ProtectedRoute = ({ children }) => {
           <h4 className="text-lg font-bold">MetaMask Not Installed</h4>
           <p className="my-2">
             Please install MetaMask to use this application.
-            <a 
-              href="https://metamask.io/download/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://metamask.io/download/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="ml-2 text-blue-600 hover:underline"
             >
               Download MetaMask
@@ -72,20 +74,26 @@ const ProtectedRoute = ({ children }) => {
   if (!account && !initializing && !loading) {
     return <Navigate to="/connect" />;
   }
-  
+
   return children;
 };
 
 function AppNavbar() {
-  const { account, connectWallet, disconnectWallet, isMetamaskInstalled, networkError } = useWallet();
+  const {
+    account,
+    connectWallet,
+    disconnectWallet,
+    isMetamaskInstalled,
+    networkError,
+  } = useWallet();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+
   const handleDisconnect = () => {
     disconnectWallet();
-    navigate('/connect');
+    navigate("/connect");
   };
-  
+
   return (
     <nav className="bg-gray-800 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -97,17 +105,23 @@ function AppNavbar() {
             </Link>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
                 >
                   Home
                 </Link>
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
                 >
                   Profile
+                </Link>
+                <Link
+                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                  to="/my-posts"
+                >
+                  My Posts
                 </Link>
               </div>
             </div>
@@ -121,11 +135,13 @@ function AppNavbar() {
                     className="max-w-xs bg-gray-700 rounded-md flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-white px-3 py-2"
                   >
                     <span className="sr-only">Open user menu</span>
-                    <span>{account.slice(0, 5) + '...' + account.slice(38, 42)}</span>
+                    <span>
+                      {account.slice(0, 5) + "..." + account.slice(38, 42)}
+                    </span>
                   </button>
                 </div>
                 {dropdownOpen && (
-                  <div 
+                  <div
                     className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-10"
                     onBlur={() => setDropdownOpen(false)}
                   >
@@ -181,58 +197,71 @@ function AppNavbar() {
 const ConditionalNavbar = () => {
   const location = useLocation();
   const { initializing } = useWallet();
-  
-  if (initializing || location.pathname === '/connect') {
+
+  if (initializing || location.pathname === "/connect") {
     return null;
   }
-  
+
   return <AppNavbar />;
 };
 
 function AppContent() {
-  const { contract, loading, initializing, isMetamaskInstalled, networkError } = useWallet();
-  
+  const { contract, loading, initializing, isMetamaskInstalled, networkError } =
+    useWallet();
+
   return (
     <Routes>
-      <Route path="/connect" element={
-        initializing ? (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
-              <p className="text-gray-700">Initializing wallet connection...</p>
+      <Route
+        path="/connect"
+        element={
+          initializing ? (
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+                <p className="text-gray-700">
+                  Initializing wallet connection...
+                </p>
+              </div>
             </div>
-          </div>
-        ) : !isMetamaskInstalled ? (
-          <div className="max-w-4xl mx-auto mt-8 px-4">
-            <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-md">
-              <h4 className="text-lg font-bold">MetaMask Not Installed</h4>
-              <p className="my-2">
-                Please install MetaMask to use this application.
-                <a 
-                  href="https://metamask.io/download/" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="ml-2 text-blue-600 hover:underline"
-                >
-                  Download MetaMask
-                </a>
-              </p>
+          ) : !isMetamaskInstalled ? (
+            <div className="max-w-4xl mx-auto mt-8 px-4">
+              <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-md">
+                <h4 className="text-lg font-bold">MetaMask Not Installed</h4>
+                <p className="my-2">
+                  Please install MetaMask to use this application.
+                  <a
+                    href="https://metamask.io/download/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-blue-600 hover:underline"
+                  >
+                    Download MetaMask
+                  </a>
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <Connect />
-        )
-      } />
-      <Route path="/" element={
-        <ProtectedRoute>
-          <Home contract={contract} />
-        </ProtectedRoute>
-      } />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <Profile contract={contract} />
-        </ProtectedRoute>
-      } />
+          ) : (
+            <Connect />
+          )
+        }
+      />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Home contract={contract} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile contract={contract} />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/my-posts" element={<MyPosts contract={contract} />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
