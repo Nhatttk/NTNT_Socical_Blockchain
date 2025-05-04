@@ -189,7 +189,7 @@ const App = ({ contract }) => {
     )
     return (
         <div className="mt-4 text-center">
-            {profile ? (<div className="mb-3"><h3 className="mb-3">{profile.username}</h3>
+            {profile ? (<div className="flex flex-col justify-center items-center mb-3"><h3 className="mb-3">{profile.username}</h3>
                 <img className="mb-3" style={{ width: '400px' }} src={profile.avatar} /></div>)
                 :
                 <h4 className="mb-4">No NFT profile, please create one...</h4>}
