@@ -534,67 +534,69 @@ const Home = ({ contract }) => {
       <div className="x-container py-6 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-6">
           {/* 1. Left Column - Profile Section */}
-          <div className="w-full md:w-80 lg:w-96 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="text-center">
-                <img
-                  src={profile ? profile.avatar : "https://via.placeholder.com/100"}
-                  alt={profile ? profile.username : "Profile"}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-gray-100 shadow"
-                />
-                <h3 className="font-bold text-xl text-gray-800">
-                  {profile ? profile.username : "No Profile"}
-                </h3>
-                <p className="text-gray-500 text-sm font-mono bg-gray-50 px-2 py-1 rounded inline-block mt-1">
-                  {address.substring(0, 6)}...{address.substring(address.length - 4)}
-                </p>
+          <div className="w-full md:w-80 lg:w-96">
+            <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="text-center">
+                  <img
+                    src={profile ? profile.avatar : "https://via.placeholder.com/100"}
+                    alt={profile ? profile.username : "Profile"}
+                    className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-gray-100 shadow"
+                  />
+                  <h3 className="font-bold text-xl text-gray-800">
+                    {profile ? profile.username : "No Profile"}
+                  </h3>
+                  <p className="text-gray-500 text-sm font-mono bg-gray-50 px-2 py-1 rounded inline-block mt-1">
+                    {address.substring(0, 6)}...{address.substring(address.length - 4)}
+                  </p>
 
-                <div className="flex justify-between items-center mt-6 px-6 pt-4 border-t border-gray-100">
-                  <div className="text-center">
-                    <div className="font-bold text-gray-700">{profile?.following || 0}</div>
-                    <div className="text-gray-500 text-sm">Following</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-gray-700">{profile?.followers || 0}</div>
-                    <div className="text-gray-500 text-sm">Followers</div>
+                  <div className="flex justify-between items-center mt-6 px-6 pt-4 border-t border-gray-100">
+                    <div className="text-center">
+                      <div className="font-bold text-gray-700">{profile?.following || 0}</div>
+                      <div className="text-gray-500 text-sm">Following</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-gray-700">{profile?.followers || 0}</div>
+                      <div className="text-gray-500 text-sm">Followers</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h4 className="font-medium text-gray-800 mb-4">Skills</h4>
-              <div className="flex flex-wrap gap-2">
-                {profile?.skills?.length > 0 ? (
-                  profile.skills.map((skill, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-blue-50 text-blue-600 py-1 px-3 rounded-full text-xs font-medium"
-                    >
-                      {skill}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-sm">No skills listed</p>
-                )}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h4 className="font-medium text-gray-800 mb-4">Skills</h4>
+                <div className="flex flex-wrap gap-2">
+                  {profile?.skills?.length > 0 ? (
+                    profile.skills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-50 text-blue-600 py-1 px-3 rounded-full text-xs font-medium"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">No skills listed</p>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h4 className="font-medium text-gray-800 mb-4">Communities</h4>
-              <ul className="divide-y divide-gray-100">
-                {defaultCommunities.map((community, idx) => (
-                  <li
-                    key={idx}
-                    className="py-3 flex justify-between items-center"
-                  >
-                    <span className="text-gray-800">{community.name}</span>
-                    <span className="bg-gray-100 text-gray-600 text-xs py-1 px-2 rounded-full">
-                      {community.members.toLocaleString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h4 className="font-medium text-gray-800 mb-4">Communities</h4>
+                <ul className="divide-y divide-gray-100">
+                  {defaultCommunities.map((community, idx) => (
+                    <li
+                      key={idx}
+                      className="py-3 flex justify-between items-center"
+                    >
+                      <span className="text-gray-800">{community.name}</span>
+                      <span className="bg-gray-100 text-gray-600 text-xs py-1 px-2 rounded-full">
+                        {community.members.toLocaleString()}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -689,44 +691,46 @@ const Home = ({ contract }) => {
 
           {/* 3. Right Column - Recent Activity */}
           <div className="w-full md:w-80 lg:w-96">
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-              <h4 className="font-medium text-gray-800 mb-4">
-                Recent Followers
-              </h4>
-              {recentFollowers.length > 0 ? (
-                <ul className="divide-y divide-gray-100">
-                  {recentFollowers.map((follower) => (
-                    <li key={follower.id} className="py-4">
-                      <div className="flex items-center mb-3">
-                        <img
-                          src={follower.avatar}
-                          alt={follower.name}
-                          className="w-12 h-12 rounded-full mr-3 object-cover border border-gray-100"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-800">
-                            {follower.name}
-                          </p>
-                          <p className="text-gray-500 text-xs font-mono">
-                            {follower.address.substring(0, 6)}...
-                            {follower.address.substring(follower.address.length - 4)}
-                          </p>
+            <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h4 className="font-medium text-gray-800 mb-4">
+                  Recent Followers
+                </h4>
+                {recentFollowers.length > 0 ? (
+                  <ul className="divide-y divide-gray-100">
+                    {recentFollowers.map((follower) => (
+                      <li key={follower.id} className="py-4">
+                        <div className="flex items-center mb-3">
+                          <img
+                            src={follower.avatar}
+                            alt={follower.name}
+                            className="w-12 h-12 rounded-full mr-3 object-cover border border-gray-100"
+                          />
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {follower.name}
+                            </p>
+                            <p className="text-gray-500 text-xs font-mono">
+                              {follower.address.substring(0, 6)}...
+                              {follower.address.substring(follower.address.length - 4)}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex space-x-3">
-                        <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                          <FaUserPlus className="mr-1.5" /> Follow Back
-                        </button>
-                        <button className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                          <FaUserMinus className="mr-1.5" /> Remove
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-center text-gray-500 py-4">No followers yet</p>
-              )}
+                        <div className="flex space-x-3">
+                          <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+                            <FaUserPlus className="mr-1.5" /> Follow Back
+                          </button>
+                          <button className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+                            <FaUserMinus className="mr-1.5" /> Remove
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No followers yet</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
