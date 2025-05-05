@@ -409,7 +409,7 @@ const App = ({ contract }) => {
                           placeholder="Describe your image..."
                           value={imagePrompt}
                           disabled={isGenerating}
-                          className="bg-[#1a1a1a] text-black border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02]"
+                          className="bg-[#1a1a1a] text-black border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02] focus:text-black placeholder-black"
                         />
                         <div className="d-grid px-0">
                           <Button
@@ -417,7 +417,7 @@ const App = ({ contract }) => {
                             variant="success"
                             size="lg"
                             disabled={!imagePrompt || isGenerating}
-                            className="bg-[#FFFD02] text-white border-[#FFFD02] hover:bg-[#FFFD02]/80"
+                            className="bg-[#FFFD02] text-black border-[#FFFD02] hover:bg-[#FFFD02]/80"
                           >
                             {isGenerating ? "Generating..." : "Generate Image"}
                           </Button>
@@ -470,7 +470,7 @@ const App = ({ contract }) => {
                               reader.readAsDataURL(file);
                             }
                           }}
-                          className="bg-[#1a1a1a] text-white border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02]"
+                          className="bg-[#1a1a1a] text-black border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02]"
                         />
                         {avatar && (
                           <div className="mt-3 relative">
@@ -510,7 +510,7 @@ const App = ({ contract }) => {
                       required
                       type="text"
                       placeholder="Username"
-                      className="bg-[#1a1a1a] text-white border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02]"
+                      className="bg-[#1a1a1a] text-black border-[#2a2a2a] focus:border-[#FFFD02] focus:ring-[#FFFD02]"
                     />
                     <div className="d-grid px-0">
                       <Button
@@ -535,7 +535,7 @@ const App = ({ contract }) => {
                   return (
                     <Col key={idx} className="overflow-hidden">
                       <Card className="bg-[#1a1a1a] border-[#2a2a2a]">
-                        <Card.Img variant="top" src={nft.avatar} />
+                        <Card.Img className="aspect-square object-cover" variant="top" src={nft.avatar} />
                         <Card.Body>
                           <Card.Title className="text-black text-center">
                             {nft.username}

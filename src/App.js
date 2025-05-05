@@ -14,6 +14,7 @@ import Connect from "./container/connect/Connect.js";
 import { WalletProvider } from "./context/WalletContext";
 import { useWallet } from "./hooks/useWallet";
 import "./App.scss";
+import Auctions from "./container/auctions/Auctions.js";
 
 const ProtectedRoute = ({ children }) => {
   const { account, loading, initializing, isMetamaskInstalled, networkError } =
@@ -125,10 +126,10 @@ function AppNavbar() {
                       : "/icons/home/home.svg"
                   }
                   alt="Home"
-                  className="w-5 h-5"
+                  className="w-7 h-7"
                 />
                 <div
-                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                  className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
                     isActive("/")
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
@@ -148,10 +149,10 @@ function AppNavbar() {
                       : "/icons/home/profile.svg"
                   }
                   alt="Profile"
-                  className="w-5 h-5"
+                  className="w-7 h-7"
                 />
                 <div
-                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                  className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
                     isActive("/profile")
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
@@ -159,23 +160,23 @@ function AppNavbar() {
                 ></div>
               </Link>
               <Link
-                to="/message"
+                to="/auctions"
                 className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
-                  isActive("/message") ? "active" : ""
+                  isActive("/auctions") ? "active" : ""
                 }`}
               >
                 <img
                   src={
-                    isActive("/message")
-                      ? "/icons/home/message-active.svg"
-                      : "/icons/home/message.svg"
+                    isActive("/auctions")
+                      ? "/icons/home/auctions-active.png"
+                      : "/icons/home/auctions.png"
                   }
-                  alt="Message"
-                  className="w-5 h-5"
+                  alt="Auctions"
+                  className="w-7 h-7"
                 />
                 <div
-                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
-                    isActive("/message")
+                  className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
+                    isActive("/auctions")
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
                   }`}
@@ -194,10 +195,10 @@ function AppNavbar() {
                       : "/icons/home/setting.svg"
                   }
                   alt="Setting"
-                  className="w-5 h-5"
+                  className="w-7 h-7"
                 />
                 <div
-                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                  className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
                     isActive("/setting")
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
@@ -342,12 +343,10 @@ function AppContent() {
         }
       />
       <Route
-        path="/message"
+        path="/auctions"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-[#1a1a1a] p-4">
-              <h1 className="text-white text-2xl">Message Page</h1>
-            </div>
+            <Auctions contract={contract} />
           </ProtectedRoute>
         }
       />

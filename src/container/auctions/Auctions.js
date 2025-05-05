@@ -403,10 +403,7 @@ const Auctions = ({ contract }) => {
     return (
       <div className="text-center">
         <main style={{ padding: "1rem 0" }}>
-          <Spinner animation="border" role="status">
-            <div class="loader"></div>{" "}
-          </Spinner>
-          <h2 className="mt-3">Đang tải dữ liệu...</h2>
+          <div class="loader"></div>
         </main>
       </div>
     );
