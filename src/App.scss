@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.x-container {
+  max-width: 1920px;
+  margin: 0 auto;
+}
 .gradient-background {
   background: linear-gradient(to bottom left, black, black, rgb(156, 163, 175));
 }
