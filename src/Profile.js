@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Row, Form, Button, Card, ListGroup, Col } from 'react-bootstrap'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
+import axios from 'axios'
 // const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
 
 // Pinata configuration
@@ -18,12 +19,19 @@ const client = ipfsHttpClient({
     }
 })
 
+
+
 const App = ({ contract }) => {
     const [profile, setProfile] = useState('')
     const [nfts, setNfts] = useState('')
     const [avatar, setAvatar] = useState(null)
     const [username, setUsername] = useState('')
     const [loading, setLoading] = useState(true)
+    const [useAIGeneration, setUseAIGeneration] = useState(false)
+    const [imagePrompt, setImagePrompt] = useState('')
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [tempImg, setTempImg] = useState(null)
+    
     const loadMyNFTs = async () => {
         // Get users nft ids
         const results = await contract.getMyNfts();
@@ -74,10 +82,76 @@ const App = ({ contract }) => {
             }
         }
     }
-    const mintProfile = async (event) => {
-        if (!avatar || !username) return
+    
+    const generateAIImage = async () => {
+        if (!imagePrompt) return;
+        
+        setIsGenerating(true);
         try {
-            const data = JSON.stringify({ avatar, username });
+            const response = await axios.get(
+                `https://honoimagegenerator.yashj8858.workers.dev/`,
+                {
+                    params: { prompt: imagePrompt },
+                    responseType: "blob",
+                }
+            );
+
+            const imageBlob = response.data;
+            const newImageUrl = URL.createObjectURL(imageBlob);
+            setAvatar(newImageUrl);
+            setTempImg(imageBlob); // Set the generated image as the tempImg for minting
+        } catch (error) {
+            console.error("Error generating image:", error);
+            window.alert("Failed to generate image");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+    
+    const uploadGeneratedImageToIPFS = async () => {
+        if (!tempImg) return null;
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', tempImg);
+
+            const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+                method: 'POST',
+                headers: {
+                    'pinata_api_key': projectId,
+                    'pinata_secret_api_key': projectSecret,
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+            return `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`;
+        } catch (error) {
+            console.log("Error uploading generated image to IPFS: ", error);
+            return null;
+        }
+    };
+    
+    const mintProfile = async (event) => {
+        if (!username) return;
+        
+        let finalAvatar = avatar;
+        
+        // If we used AI generation, we need to upload the generated image to IPFS first
+        if (useAIGeneration && tempImg) {
+            const ipfsUrl = await uploadGeneratedImageToIPFS();
+            if (!ipfsUrl) {
+                window.alert("Failed to upload generated image to IPFS");
+                return;
+            }
+            finalAvatar = ipfsUrl;
+        } else if (!avatar) {
+            window.alert("Please upload or generate an image");
+            return;
+        }
+        
+        try {
+            const data = JSON.stringify({ avatar: finalAvatar, username });
             const response = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
                 method: 'POST',
                 headers: {
@@ -89,11 +163,11 @@ const App = ({ contract }) => {
             });
 
             const result = await response.json();
-            setLoading(true)
-            await (await contract.mint(`https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`)).wait()
-            loadMyNFTs()
+            setLoading(true);
+            await (await contract.mint(`https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`)).wait();
+            loadMyNFTs();
         } catch (error) {
-            window.alert("ipfs uri upload error: ", error)
+            window.alert("ipfs uri upload error: " + error);
         }
     }
     const switchProfile = async (nft) => {
@@ -115,7 +189,7 @@ const App = ({ contract }) => {
     )
     return (
         <div className="mt-4 text-center">
-            {profile ? (<div className="mb-3"><h3 className="mb-3">{profile.username}</h3>
+            {profile ? (<div className="flex flex-col justify-center items-center mb-3"><h3 className="mb-3">{profile.username}</h3>
                 <img className="mb-3" style={{ width: '400px' }} src={profile.avatar} /></div>)
                 :
                 <h4 className="mb-4">No NFT profile, please create one...</h4>}
@@ -124,12 +198,58 @@ const App = ({ contract }) => {
                 <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>
                     <div className="content mx-auto">
                         <Row className="g-4">
-                            <Form.Control
-                                type="file"
-                                required
-                                name="file"
-                                onChange={uploadToIPFS}
-                            />
+                            <div className="mb-3 d-flex justify-content-center">
+                                <Button 
+                                    onClick={() => setUseAIGeneration(false)} 
+                                    variant={useAIGeneration ? "outline-primary" : "primary"}
+                                    className="me-2"
+                                >
+                                    Upload Image
+                                </Button>
+                                <Button 
+                                    onClick={() => setUseAIGeneration(true)} 
+                                    variant={useAIGeneration ? "primary" : "outline-primary"}
+                                >
+                                    Generate AI Image
+                                </Button>
+                            </div>
+                            
+                            {useAIGeneration ? (
+                                <>
+                                    <Form.Control 
+                                        onChange={(e) => setImagePrompt(e.target.value)} 
+                                        size="lg" 
+                                        required 
+                                        type="text" 
+                                        placeholder="Describe your image..." 
+                                        value={imagePrompt}
+                                        disabled={isGenerating}
+                                    />
+                                    <div className="d-grid px-0">
+                                        <Button 
+                                            onClick={generateAIImage} 
+                                            variant="success" 
+                                            size="lg"
+                                            disabled={!imagePrompt || isGenerating}
+                                        >
+                                            {isGenerating ? 'Generating...' : 'Generate Image'}
+                                        </Button>
+                                    </div>
+                                    {avatar && (
+                                        <div className="mt-3">
+                                            <img src={avatar} alt="Generated" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <Form.Control
+                                    type="file"
+                                    required
+                                    name="file"
+                                    onChange={uploadToIPFS}
+                                />
+                            )}
+                            
                             <Form.Control onChange={(e) => setUsername(e.target.value)} size="lg" required type="text" placeholder="Username" />
                             <div className="d-grid px-0">
                                 <Button onClick={mintProfile} variant="primary" size="lg">
