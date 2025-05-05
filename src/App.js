@@ -13,8 +13,6 @@ import Profile from "./Profile.js";
 import Connect from "./container/connect/Connect.js";
 import { WalletProvider } from "./context/WalletContext";
 import { useWallet } from "./hooks/useWallet";
-import logo from "./logo.png";
-import MyPosts from "./MyPosts.js";
 import "./App.scss";
 
 const ProtectedRoute = ({ children }) => {
@@ -87,6 +85,7 @@ function AppNavbar() {
     networkError,
   } = useWallet();
   const navigate = useNavigate();
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDisconnect = () => {
@@ -94,45 +93,126 @@ function AppNavbar() {
     navigate("/connect");
   };
 
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
-    <nav className="bg-gray-800 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav className="x-container min-h-[100px] flex-1 items-center">
+      <div className="p-4">
+        <div className="flex w-full items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <img src={logo} className="h-10 w-10" alt="Logo" />
-              <span className="ml-2 text-xl font-bold">Decentratwitter</span>
+              <img
+                src={"/icons/icon.svg"}
+                className="h-[70px] w-[70px]"
+                alt="Logo"
+              />
             </Link>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <Link
-                  to="/"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/profile"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
-                >
-                  Profile
-                </Link>
-                <Link
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
-                  to="/my-posts"
-                >
-                  My Posts
-                </Link>
-              </div>
+          </div>
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <Link
+                to="/"
+                className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
+                  isActive("/") ? "active" : ""
+                }`}
+              >
+                <img
+                  src={
+                    isActive("/")
+                      ? "/icons/home/home-active.svg"
+                      : "/icons/home/home.svg"
+                  }
+                  alt="Home"
+                  className="w-5 h-5"
+                />
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
+              </Link>
+              <Link
+                to="/profile"
+                className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
+                  isActive("/profile") ? "active" : ""
+                }`}
+              >
+                <img
+                  src={
+                    isActive("/profile")
+                      ? "/icons/home/profile-active.svg"
+                      : "/icons/home/profile.svg"
+                  }
+                  alt="Profile"
+                  className="w-5 h-5"
+                />
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/profile")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
+              </Link>
+              <Link
+                to="/message"
+                className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
+                  isActive("/message") ? "active" : ""
+                }`}
+              >
+                <img
+                  src={
+                    isActive("/message")
+                      ? "/icons/home/message-active.svg"
+                      : "/icons/home/message.svg"
+                  }
+                  alt="Message"
+                  className="w-5 h-5"
+                />
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/message")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
+              </Link>
+              <Link
+                to="/setting"
+                className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
+                  isActive("/setting") ? "active" : ""
+                }`}
+              >
+                <img
+                  src={
+                    isActive("/setting")
+                      ? "/icons/home/setting-active.svg"
+                      : "/icons/home/setting.svg"
+                  }
+                  alt="Setting"
+                  className="w-5 h-5"
+                />
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/setting")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
+              </Link>
             </div>
           </div>
-          <div className="ml-4 flex items-center md:ml-6">
+          <div className="">
             {account ? (
               <div className="ml-3 relative">
                 <div>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="max-w-xs bg-gray-700 rounded-md flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-white px-3 py-2"
+                    className="max-w-xs bg-white rounded-md flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-white px-3 py-2"
                   >
                     <span className="sr-only">Open user menu</span>
                     <span>
@@ -215,7 +295,7 @@ function AppContent() {
         path="/connect"
         element={
           initializing ? (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className=" min-h-screen flex items-center justify-center">
               <div className="text-center">
                 <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
                 <p className="text-gray-700">
@@ -261,7 +341,26 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-      <Route path="/my-posts" element={<MyPosts contract={contract} />} />
+      <Route
+        path="/message"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-[#1a1a1a] p-4">
+              <h1 className="text-white text-2xl">Message Page</h1>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/setting"
+        element={
+          <ProtectedRoute>
+            <div className="min-h-screen bg-[#1a1a1a] p-4">
+              <h1 className="text-white text-2xl">Setting Page</h1>
+            </div>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
@@ -271,7 +370,7 @@ function App() {
   return (
     <BrowserRouter>
       <WalletProvider>
-        <div className="min-h-screen w-full bg-gray-50">
+        <div className="min-h-screen bg-[#1a1a1a]">
           <ConditionalNavbar />
           <AppContent />
         </div>
