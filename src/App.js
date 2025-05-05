@@ -119,13 +119,21 @@ function AppNavbar() {
                 }`}
               >
                 <img
-                  src={isActive("/") ? "/icons/home/home-active.svg" : "/icons/home/home.svg"}
+                  src={
+                    isActive("/")
+                      ? "/icons/home/home-active.svg"
+                      : "/icons/home/home.svg"
+                  }
                   alt="Home"
                   className="w-5 h-5"
                 />
-                <div className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
-                  isActive("/") ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></div>
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
               </Link>
               <Link
                 to="/profile"
@@ -134,13 +142,21 @@ function AppNavbar() {
                 }`}
               >
                 <img
-                  src={isActive("/profile") ? "/icons/home/profile-active.svg" : "/icons/home/profile.svg"}
+                  src={
+                    isActive("/profile")
+                      ? "/icons/home/profile-active.svg"
+                      : "/icons/home/profile.svg"
+                  }
                   alt="Profile"
                   className="w-5 h-5"
                 />
-                <div className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
-                  isActive("/profile") ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></div>
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/profile")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
               </Link>
               <Link
                 to="/message"
@@ -149,13 +165,21 @@ function AppNavbar() {
                 }`}
               >
                 <img
-                  src={isActive("/message") ? "/icons/home/message-active.svg" : "/icons/home/message.svg"}
+                  src={
+                    isActive("/message")
+                      ? "/icons/home/message-active.svg"
+                      : "/icons/home/message.svg"
+                  }
                   alt="Message"
                   className="w-5 h-5"
                 />
-                <div className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
-                  isActive("/message") ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></div>
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/message")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
               </Link>
               <Link
                 to="/setting"
@@ -164,13 +188,21 @@ function AppNavbar() {
                 }`}
               >
                 <img
-                  src={isActive("/setting") ? "/icons/home/setting-active.svg" : "/icons/home/setting.svg"}
+                  src={
+                    isActive("/setting")
+                      ? "/icons/home/setting-active.svg"
+                      : "/icons/home/setting.svg"
+                  }
                   alt="Setting"
                   className="w-5 h-5"
                 />
-                <div className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
-                  isActive("/setting") ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}></div>
+                <div
+                  className={`w-1.5 h-1.5 rounded-full bg-[#FFFD02] ${
+                    isActive("/setting")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
               </Link>
             </div>
           </div>
