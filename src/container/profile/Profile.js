@@ -302,12 +302,12 @@ const App = ({ contract }) => {
     );
   return (
     <div className="x-container">
-      <div className="flex justify-center py-4 px-8 ">
+      <div className="flex justify-center py-4 px-8">
         <div className="flex-[0.5] flex flex-col items-center">
           {profile && !isEditing && (
             <div className="flex flex-col justify-center items-center gap-3">
               <img
-                className="rounded-full"
+                className="rounded-full aspect-square object-cover"
                 style={{ width: "400px" }}
                 src={profile.avatar}
               />
@@ -561,9 +561,9 @@ const App = ({ contract }) => {
             </div>
           )}
         </div>
-        <div className="tabs flex-[0.7]">
+        <div className="tabs flex-[0.7] pr-10">
           <div className="">
-            <div className="flex space-x-1 mb-4">
+            <div className="flex space-x-3 mb-4">
               {["Activity", "Notification", "Display", "Apps"].map((tab) => (
                 <button
                   key={tab}
