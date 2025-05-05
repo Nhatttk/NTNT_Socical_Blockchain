@@ -296,7 +296,7 @@ const App = ({ contract }) => {
     return (
       <div className="text-center">
         <main style={{ padding: "1rem 0" }}>
-          <h2>Loading...</h2>
+          <div class="loader"></div>
         </main>
       </div>
     );

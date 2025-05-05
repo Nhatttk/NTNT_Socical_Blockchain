@@ -8,8 +8,8 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import Home from "./Home.js";
-import Profile from "./Profile.js";
+import Home from "./container/home/Home.js";
+import Profile from "./container/profile/Profile.js";
 import Connect from "./container/connect/Connect.js";
 import { WalletProvider } from "./context/WalletContext";
 import { useWallet } from "./hooks/useWallet";
