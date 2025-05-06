@@ -13,6 +13,7 @@ import {
 import { useSocialContract } from "../../hooks/useSocialContract";
 import { useProfile } from "../../hooks/useProfile";
 import { IoIosCloseCircle } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const Home = ({ contract }) => {
   const [post, setPost] = useState("");
@@ -37,12 +38,25 @@ const Home = ({ contract }) => {
   const [recentFollowers, setRecentFollowers] = useState([]);
   const [isPosting, setIsPosting] = useState(false);
   const [postError, setPostError] = useState("");
+  const navigate = useNavigate();
 
   // Default skills and communities data (to be replaced with blockchain data in future)
   const defaultCommunities = [
-    { name: "Ethereum Devs", members: 15240 },
-    { name: "NFT Creators", members: 8320 },
-    { name: "DeFi Innovators", members: 6540 },
+    { name: "Ethereum Devs", members: 15240, images: "/images/com-1.png" },
+    { name: "NFT Creators", members: 8320, images: "/images/com-2.png" },
+    { name: "DeFi Innovators", members: 6540, images: "/images/com-3.png" },
+  ];
+
+  // Mock data for skills
+  const mockSkills = [
+    "JavaScript",
+    "React",
+    "Node.js",
+    "TypeScript",
+    "MongoDB",
+    "Express",
+    "CSS",
+    "HTML",
   ];
 
   const {
@@ -72,15 +86,15 @@ const Home = ({ contract }) => {
   useEffect(() => {
     if (posts && posts.length > 0) {
       const otherUsers = posts
-        .filter(post => post.author.address !== address)
-        .map(post => ({
+        .filter((post) => post.author.address !== address)
+        .map((post) => ({
           id: post.id.toNumber(),
           name: post.author.username,
           address: post.author.address,
-          avatar: post.author.avatar || "https://via.placeholder.com/40"
+          avatar: post.author.avatar || "https://via.placeholder.com/40",
         }))
         .slice(0, 5); // Take first 5 users
-        
+
       setRecentFollowers(otherUsers);
     }
   }, [posts, address]);
@@ -113,7 +127,7 @@ const Home = ({ contract }) => {
       setTimeout(() => setPostError(""), 3000);
       return;
     }
-    
+
     try {
       setIsPosting(true);
       setPostError("");
@@ -335,9 +349,9 @@ const Home = ({ contract }) => {
     return (
       <div
         key={key}
-        className="bg-white rounded-lg shadow-md mb-4 overflow-hidden"
+        className="bg-[#282828] rounded-lg shadow-md mb-4 overflow-hidden"
       >
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-[#404040]">
           <div className="flex items-center">
             <img
               src={post.author.avatar}
@@ -345,8 +359,8 @@ const Home = ({ contract }) => {
               className="w-10 h-10 rounded-full mr-3 object-cover"
             />
             <div>
-              <p className="font-semibold">{post.author.username}</p>
-              <p className="text-gray-500 text-sm">
+              <p className="font-semibold text-white">{post.author.username}</p>
+              <p className="text-neutral-400 text-sm">
                 {post.author.address.substring(0, 6)}...
                 {post.author.address.substring(post.author.address.length - 4)}
               </p>
@@ -355,7 +369,7 @@ const Home = ({ contract }) => {
         </div>
 
         <div className="p-4">
-          <p className="text-gray-800 mb-3">{post.content}</p>
+          <p className="text-neutral-300 mb-3">{post.content}</p>
           {post.image && (
             <div className="mb-3">
               <img
@@ -367,7 +381,7 @@ const Home = ({ contract }) => {
           )}
         </div>
 
-        <div className="px-4 py-3 border-t border-gray-100">
+        <div className="px-4 py-3 border-t border-[#404040]">
           <div className="flex justify-between items-center">
             <div className="flex space-x-4">
               <div className="flex items-center">
@@ -378,11 +392,11 @@ const Home = ({ contract }) => {
                   />
                 ) : (
                   <FaRegHeart
-                    className="text-gray-600 cursor-pointer hover:text-red-500 mr-1"
+                    className="text-neutral-400 cursor-pointer hover:text-red-500 mr-1"
                     onClick={() => hasProfile && toggleReaction(post.id)}
                   />
                 )}
-                <span className="text-gray-600 text-sm">
+                <span className="text-neutral-400 text-sm">
                   {post.reactionCount}
                 </span>
               </div>
@@ -391,14 +405,14 @@ const Home = ({ contract }) => {
                 className="flex items-center cursor-pointer"
                 onClick={() => toggleComments(post.id)}
               >
-                <FaComment className="text-gray-600 mr-1" />
-                <span className="text-gray-600 text-sm">
+                <FaComment className="text-neutral-400 mr-1" />
+                <span className="text-neutral-400 text-sm">
                   {post.commentCount}
                 </span>
               </div>
 
               <div className="flex items-center">
-                <span className="text-gray-600 text-sm">
+                <span className="text-neutral-400 text-sm">
                   {post.tipAmountFormatted} ETH
                 </span>
               </div>
@@ -408,13 +422,13 @@ const Home = ({ contract }) => {
               {address === post.author.address && hasProfile ? (
                 <div className="flex space-x-2">
                   <button
-                    className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-md flex items-center text-sm transition-colors"
+                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-blue-400 rounded-md flex items-center text-sm transition-colors"
                     onClick={() => openEditModal(post)}
                   >
                     <FaEdit className="mr-1" /> Edit
                   </button>
                   <button
-                    className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-500 rounded-md flex items-center text-sm transition-colors"
+                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-red-400 rounded-md flex items-center text-sm transition-colors"
                     onClick={() => openDeleteModal(post)}
                   >
                     <FaTrash className="mr-1" /> Delete
@@ -424,18 +438,18 @@ const Home = ({ contract }) => {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    className="w-16 p-1 text-sm border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-16 p-1 text-sm border border-[#404040] rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-[#1a1a1a] text-white"
                     placeholder="0.1"
                     value={tipAmounts[post.id] || "0.1"}
                     onChange={(e) =>
                       handleTipAmountChange(post.id, e.target.value)
                     }
                   />
-                  <span className="bg-gray-100 px-2 py-1 text-sm border-y border-r border-gray-300">
+                  <span className="bg-[#404040] px-2 py-1 text-sm border-y border-r border-[#505050] text-neutral-300">
                     ETH
                   </span>
                   <button
-                    className="ml-2 px-3 py-1 bg-green-50 hover:bg-green-100 text-green-600 rounded-md text-sm transition-colors"
+                    className="ml-2 px-3 py-1 bg-[#404040] hover:bg-[#505050] text-green-400 rounded-md text-sm transition-colors"
                     onClick={() => handleTip(post)}
                   >
                     Tip
@@ -446,12 +460,12 @@ const Home = ({ contract }) => {
           </div>
 
           {expandedPostComments[post.id] && (
-            <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="mt-4 pt-3 border-t border-[#404040]">
               {hasProfile && (
                 <div className="mb-4 flex">
                   <textarea
                     placeholder="Write a comment..."
-                    className="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                    className="flex-grow p-2 border border-[#404040] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm bg-[#1a1a1a] text-white"
                     value={commentContents[post.id] || ""}
                     onChange={(e) =>
                       handleCommentContentChange(post.id, e.target.value)
@@ -459,7 +473,7 @@ const Home = ({ contract }) => {
                     rows="2"
                   ></textarea>
                   <button
-                    className="ml-2 px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center transition-colors"
+                    className="ml-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center transition-colors"
                     onClick={() => handleAddComment(post.id)}
                   >
                     <FaReply className="mr-1" /> Post
@@ -469,13 +483,13 @@ const Home = ({ contract }) => {
 
               {loadingComments[post.id] ? (
                 <div className="text-center py-4">
-                  <div className="w-6 h-6 border-2 border-t-2 border-gray-200 border-t-blue-500 rounded-full animate-spin inline-block"></div>
-                  <p className="text-gray-500 mt-2">Loading comments...</p>
+                  <div className="w-6 h-6 border-2 border-t-2 border-[#404040] border-t-blue-500 rounded-full animate-spin inline-block"></div>
+                  <p className="text-neutral-400 mt-2">Loading comments...</p>
                 </div>
               ) : postComments[post.id] && postComments[post.id].length > 0 ? (
                 <div className="space-y-3">
                   {postComments[post.id].map((comment, idx) => (
-                    <div key={idx} className="bg-gray-50 p-3 rounded-lg">
+                    <div key={idx} className="bg-[#1a1a1a] p-3 rounded-lg">
                       <div className="flex justify-between mb-2">
                         <div className="flex">
                           <img
@@ -484,10 +498,10 @@ const Home = ({ contract }) => {
                             className="w-8 h-8 rounded-full mr-2 object-cover"
                           />
                           <div>
-                            <p className="font-medium text-sm">
+                            <p className="font-medium text-sm text-white">
                               {comment.author.username}
                             </p>
-                            <p className="text-gray-500 text-xs">
+                            <p className="text-neutral-400 text-xs">
                               {comment.timestamp}
                             </p>
                           </div>
@@ -495,7 +509,7 @@ const Home = ({ contract }) => {
                         {address === comment.author.address && (
                           <div className="flex space-x-1">
                             <button
-                              className="text-blue-500 hover:text-blue-700"
+                              className="text-blue-400 hover:text-blue-300"
                               onClick={() =>
                                 openEditCommentModal(post.id, comment)
                               }
@@ -503,7 +517,7 @@ const Home = ({ contract }) => {
                               <FaEdit />
                             </button>
                             <button
-                              className="text-red-500 hover:text-red-700"
+                              className="text-red-400 hover:text-red-300"
                               onClick={() =>
                                 openDeleteCommentModal(post.id, comment)
                               }
@@ -513,12 +527,14 @@ const Home = ({ contract }) => {
                           </div>
                         )}
                       </div>
-                      <p className="text-gray-700 text-sm">{comment.content}</p>
+                      <p className="text-neutral-300 text-sm">
+                        {comment.content}
+                      </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 py-4">
+                <p className="text-center text-neutral-400 py-4">
                   No comments yet
                 </p>
               )}
@@ -530,89 +546,141 @@ const Home = ({ contract }) => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="x-container py-6 px-4 sm:px-6 lg:px-8">
+    <div className="x-container">
+      <div className="py-6 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-6">
           {/* 1. Left Column - Profile Section */}
-          <div className="w-full md:w-80 lg:w-96">
-            <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="text-center">
-                  <img
-                    src={profile ? profile.avatar : "https://via.placeholder.com/100"}
-                    alt={profile ? profile.username : "Profile"}
-                    className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-gray-100 shadow"
-                  />
-                  <h3 className="font-bold text-xl text-gray-800">
-                    {profile ? profile.username : "No Profile"}
-                  </h3>
-                  <p className="text-gray-500 text-sm font-mono bg-gray-50 px-2 py-1 rounded inline-block mt-1">
-                    {address.substring(0, 6)}...{address.substring(address.length - 4)}
-                  </p>
-
-                  <div className="flex justify-between items-center mt-6 px-6 pt-4 border-t border-gray-100">
-                    <div className="text-center">
-                      <div className="font-bold text-gray-700">{profile?.following || 0}</div>
-                      <div className="text-gray-500 text-sm">Following</div>
+          {profile && (
+            <div className="w-full md:w-80 lg:w-96">
+              <div className="sticky rounded-xl top-6 space-y-6 overflow-hidden h-auto pb-6">
+                <div className="relative bg-[#282828] rounded-xl shadow-sm py-6 overflow-hidden">
+                  <div className="absolute w-full top-10 flex justify-between items-center ">
+                    <div className="text-center w-1/3">
+                      <div className="font-bold text-xl text-white">
+                        {profile?.following || 12}
+                      </div>
+                      <div className="text-neutral-400 text-base">
+                        Following
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="font-bold text-gray-700">{profile?.followers || 0}</div>
-                      <div className="text-gray-500 text-sm">Followers</div>
+                    <div className="w-1/3"></div>{" "}
+                    {/* chỗ trống cho avatar ở giữa */}
+                    <div className="text-center w-1/3">
+                      <div className="font-bold text-xl text-white">
+                        {profile?.followers || 1020}
+                      </div>
+                      <div className="text-neutral-400 text-base">
+                        Followers
+                      </div>
+                    </div>
+                  </div>
+
+                  <img
+                    src="/images/bg-profile.png"
+                    alt="Background"
+                    className="absolute top-0 left-0 w-full h-[200%] opacity-25 object-cover"
+                  />
+
+                  <div className="z-10">
+                    <div className="relative z-10 text-center text-white">
+                      {/* Avatar */}
+                      <div className="relative w-full flex justify-center">
+                        <img
+                          src={
+                            profile
+                              ? profile.avatar
+                              : "/images/avatar-default.png"
+                          }
+                          alt={profile ? profile.username : "Profile"}
+                          className="w-[130px] h-[130px] rounded-md object-cover border-[10px] border-black shadow z-20"
+                        />
+                      </div>
+
+                      <h3 className="font-bold text-xl mt-4">
+                        {profile ? profile.username : "No Profile"}
+                      </h3>
+                      <p className="text-gray-300 text-sm font-mono bg-gray-600 bg-opacity-50 px-2 py-1 rounded inline-block mt-1">
+                        {address.substring(0, 6)}...
+                        {address.substring(address.length - 4)}
+                      </p>
+                      <p className="mt-2 w-2/3 mx-auto text-neutral-300">
+                        Hello, I'm Blockchain Developer. Open to the new Project
+                      </p>
+
+                      <button
+                        onClick={() => navigate("/profile")}
+                        className="mt-4 w-1/2 mx-auto bg-gradient-to-br from-neutral-700 to-gray-800 hover:from-neutral-800 hover:to-gray-900 text-white py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 text-lg font-bold"
+                      >
+                        <FaUserPlus className="text-yellow-1 size-6" />
+                        My Profile
+                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h4 className="font-medium text-gray-800 mb-4">Skills</h4>
-                <div className="flex flex-wrap gap-2">
-                  {profile?.skills?.length > 0 ? (
-                    profile.skills.map((skill, idx) => (
+                <div className="bg-[#282828] rounded-xl shadow-sm p-6">
+                  <h4 className="font-medium text-white mb-4">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(profile?.skills?.length > 0
+                      ? profile.skills
+                      : mockSkills
+                    ).map((skill, idx) => (
                       <span
                         key={idx}
-                        className="bg-blue-50 text-blue-600 py-1 px-3 rounded-full text-xs font-medium"
+                        className="bg-[#404040] text-neutral-300 py-1 px-3 rounded-full text-xs font-medium"
                       >
                         {skill}
                       </span>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-sm">No skills listed</p>
-                  )}
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#282828] rounded-xl shadow-sm px-6 pt-6 pb-1">
+                  <h4 className="font-medium text-white mb-4">Communities</h4>
+                  <ul className="p-0 divide-y divide-[#404040]">
+                    {defaultCommunities.map((community, idx) => (
+                      <li
+                        key={idx}
+                        className="py-4 cursor-pointer flex items-center hover:bg-[#404040] transition-all duration-200 rounded-lg px-2 -mx-2"
+                      >
+                        <div className="flex items-center gap-4">
+                          <img 
+                            src={community.images} 
+                            alt={community.name}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                          <div className="flex-1">
+                            <h5 className="text-white font-medium mb-1 group-hover:text-yellow-1 transition-colors">{community.name}</h5>
+                            <p className="text-yellow-2 m-0 text-sm">
+                              {community.members.toLocaleString()} members
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h4 className="font-medium text-gray-800 mb-4">Communities</h4>
-                <ul className="divide-y divide-gray-100">
-                  {defaultCommunities.map((community, idx) => (
-                    <li
-                      key={idx}
-                      className="py-3 flex justify-between items-center"
-                    >
-                      <span className="text-gray-800">{community.name}</span>
-                      <span className="bg-gray-100 text-gray-600 text-xs py-1 px-2 rounded-full">
-                        {community.members.toLocaleString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
-          </div>
+          )}
 
           {/* 2. Middle Column - Post Feed */}
           <div className="w-full md:flex-1 space-y-6">
             {hasProfile ? (
-              <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="bg-[#282828] rounded-xl shadow-sm p-6">
                 {postError && (
-                  <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                  <div className="mb-4 bg-red-900/50 text-red-400 p-3 rounded-lg text-sm">
                     {postError}
                   </div>
                 )}
-                
+
                 <textarea
                   placeholder="What's on your mind?"
-                  className={`w-full p-4 border ${postError ? 'border-red-300 focus:ring-red-500' : 'border-gray-200 focus:ring-blue-500'} rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none`}
+                  className={`w-full p-4 border ${
+                    postError
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-[#404040] focus:ring-blue-500"
+                  } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none bg-[#1a1a1a] text-white`}
                   value={post}
                   onChange={(e) => {
                     setPost(e.target.value);
@@ -623,7 +691,7 @@ const Home = ({ contract }) => {
                 ></textarea>
 
                 <div className="flex justify-between items-center mt-4">
-                  <div className="relative">
+                  <div className="relative cursor-pointer">
                     <input
                       type="file"
                       id="file-input"
@@ -633,25 +701,47 @@ const Home = ({ contract }) => {
                     />
                     <label
                       htmlFor="file-input"
-                      className={`bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm cursor-pointer transition-all flex items-center border border-gray-200 ${isPosting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] ${
+                        isPosting ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       Add Image
                     </label>
                   </div>
                   <button
-                    className={`bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium flex items-center ${isPosting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium flex items-center ${
+                      isPosting ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                     onClick={handlePost}
                     disabled={isPosting}
                   >
                     {isPosting ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Đang đăng...
                       </>
-                    ) : "Post"}
+                    ) : (
+                      "Post"
+                    )}
                   </button>
                 </div>
 
@@ -660,10 +750,10 @@ const Home = ({ contract }) => {
                     <img
                       src={imagePost}
                       alt="Preview"
-                      className="relative w-full h-auto max-h-[250px] object-contain rounded-lg border border-gray-200"
+                      className="relative w-full h-auto max-h-[250px] object-contain rounded-lg border border-[#404040]"
                     />
                     <button
-                      className="absolute top-2 right-2 bg-white shadow-md text-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-50 transition-all hover:text-red-600 hover:scale-110"
+                      className="absolute top-2 right-2 bg-[#282828] shadow-md text-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#404040] transition-all hover:text-red-600 hover:scale-110"
                       onClick={() => setImagePost("")}
                       aria-label="Remove image"
                     >
@@ -673,8 +763,8 @@ const Home = ({ contract }) => {
                 )}
               </div>
             ) : (
-              <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-                <p className="text-gray-700">
+              <div className="bg-[#282828] rounded-xl shadow-sm p-6 text-center">
+                <p className="text-neutral-300">
                   You must own an NFT profile to post.
                 </p>
               </div>
@@ -683,56 +773,62 @@ const Home = ({ contract }) => {
             {posts.length > 0 ? (
               posts.map((post, key) => renderPost(post, key))
             ) : (
-              <div className="bg-white rounded-xl shadow-sm p-6 text-center">
-                <p className="text-gray-700">No posts yet</p>
+              <div className="bg-[#282828] rounded-xl shadow-sm p-6 text-center">
+                <p className="text-neutral-300">No posts yet</p>
               </div>
             )}
           </div>
 
           {/* 3. Right Column - Recent Activity */}
-          <div className="w-full md:w-80 lg:w-96">
-            <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h4 className="font-medium text-gray-800 mb-4">
-                  Recent Followers
-                </h4>
-                {recentFollowers.length > 0 ? (
-                  <ul className="divide-y divide-gray-100">
-                    {recentFollowers.map((follower) => (
-                      <li key={follower.id} className="py-4">
-                        <div className="flex items-center mb-3">
-                          <img
-                            src={follower.avatar}
-                            alt={follower.name}
-                            className="w-12 h-12 rounded-full mr-3 object-cover border border-gray-100"
-                          />
-                          <div>
-                            <p className="font-medium text-gray-800">
-                              {follower.name}
-                            </p>
-                            <p className="text-gray-500 text-xs font-mono">
-                              {follower.address.substring(0, 6)}...
-                              {follower.address.substring(follower.address.length - 4)}
-                            </p>
+          {profile && (
+            <div className="w-full md:w-[400px] lg:w-[500px]">
+              <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
+                <div className="bg-[#282828] rounded-xl shadow-sm p-6">
+                  <h4 className="font-medium text-white mb-4">
+                    Recent Followers
+                  </h4>
+                  {recentFollowers.length > 0 ? (
+                    <ul className="divide-y divide-[#404040]">
+                      {recentFollowers.map((follower) => (
+                        <li key={follower.id} className="py-4">
+                          <div className="flex items-center mb-3">
+                            <img
+                              src={follower.avatar}
+                              alt={follower.name}
+                              className="w-12 h-12 rounded-full mr-3 object-cover border border-[#404040]"
+                            />
+                            <div>
+                              <p className="font-medium text-white">
+                                {follower.name}
+                              </p>
+                              <p className="text-neutral-400 text-xs font-mono">
+                                {follower.address.substring(0, 6)}...
+                                {follower.address.substring(
+                                  follower.address.length - 4
+                                )}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex space-x-3">
-                          <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                            <FaUserPlus className="mr-1.5" /> Follow Back
-                          </button>
-                          <button className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-600 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                            <FaUserMinus className="mr-1.5" /> Remove
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-center text-gray-500 py-4">No followers yet</p>
-                )}
+                          <div className="flex space-x-3">
+                            <button className="flex-1 bg-[#404040] hover:bg-[#505050] text-blue-400 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+                              <FaUserPlus className="mr-1.5" /> Follow Back
+                            </button>
+                            <button className="flex-1 bg-[#404040] hover:bg-[#505050] text-red-400 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+                              <FaUserMinus className="mr-1.5" /> Remove
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-center text-neutral-400 py-4">
+                      No followers yet
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
