@@ -448,10 +448,7 @@ const Home = ({ contract }) => {
   // Memoize followers list
   const followersList = useMemo(() => {
     return memoizedUserClone.slice(0, 4).map((follower, index) => (
-      <li
-        key={index}
-        className="bg-[#1A1A1A] py-4 px-10 rounded-2xl"
-      >
+      <li key={index} className="bg-[#1A1A1A] py-4 px-10 rounded-2xl">
         <div className="flex items-center mb-3">
           <div className="relative">
             <img
@@ -476,9 +473,7 @@ const Home = ({ contract }) => {
             )}
           </div>
           <div className="flex flex-col gap-1 pl-2">
-            <p className="font-medium text-white mb-0">
-              {follower.name}
-            </p>
+            <p className="font-medium text-white mb-0">{follower.name}</p>
             <p className="text-yellow-2 text-xs mb-0">
               followed on you • {follower.followedTime}
             </p>
@@ -546,25 +541,42 @@ const Home = ({ contract }) => {
         key={key}
         className="bg-[#282828] rounded-lg shadow-md mb-4 overflow-hidden"
       >
-        <div className="p-4 border-b border-[#404040]">
-          <div className="flex items-center">
+        <div className="head-post p-4 border-b border-[#404040]">
+          <div className="flex gap-2 items-center">
             <img
               src={post.author.avatar}
               alt={post.author.username}
-              className="w-10 h-10 rounded-full mr-3 object-cover"
+              className="w-[70px] h-[70px] rounded-2xl mr-3 object-cover"
             />
-            <div>
-              <p className="font-semibold text-white">{post.author.username}</p>
-              <p className="text-neutral-400 text-sm">
-                {post.author.address.substring(0, 6)}...
-                {post.author.address.substring(post.author.address.length - 4)}
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex justify-center items-center gap-3">
+                <p className="m-0 mt-1 font-semibold text-2xl text-white">
+                  {post.author.username}
+                </p>
+                <div className="bg-blue-500 w-6 h-6 rounded-full mt-1">
+                  <svg
+                    className="w-6 h-6 text-black"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <p className="text-neutral-400 text-lg">
+                {post.author.address}
               </p>
             </div>
           </div>
         </div>
 
         <div className="p-4">
-          <p className="text-neutral-300 mb-3">{post.content}</p>
+          <p className="text-white text-xl mb-3">{post.content}</p>
           {post.image && (
             <div className="mb-3">
               <img
@@ -579,35 +591,35 @@ const Home = ({ contract }) => {
         <div className="px-4 py-3 border-t border-[#404040]">
           <div className="flex justify-between items-center">
             <div className="flex space-x-4">
-              <div className="flex items-center">
+              <div className="flex gap-2 items-center">
                 {post.hasReacted ? (
                   <FaHeart
-                    className="text-red-500 cursor-pointer mr-1"
+                    className="text-red-500 w-5 h-5 cursor-pointer mr-1"
                     onClick={() => hasProfile && toggleReaction(post.id)}
                   />
                 ) : (
                   <FaRegHeart
-                    className="text-neutral-400 cursor-pointer hover:text-red-500 mr-1"
+                    className="text-neutral-400 w-5 h-5 cursor-pointer hover:text-red-500 mr-1"
                     onClick={() => hasProfile && toggleReaction(post.id)}
                   />
                 )}
-                <span className="text-neutral-400 text-sm">
+                <span className="text-neutral-400 text-base">
                   {post.reactionCount}
                 </span>
               </div>
 
               <div
-                className="flex items-center cursor-pointer"
+                className="flex gap-2 items-center cursor-pointer"
                 onClick={() => toggleComments(post.id)}
               >
-                <FaComment className="text-neutral-400 mr-1" />
-                <span className="text-neutral-400 text-sm">
+                <FaComment className="text-neutral-400 w-5 h-5 mr-1" />
+                <span className="text-neutral-400 text-base">
                   {post.commentCount}
                 </span>
               </div>
 
               <div className="flex items-center">
-                <span className="text-neutral-400 text-sm">
+                <span className="text-yellow-2 text-base">
                   {post.tipAmountFormatted} ETH
                 </span>
               </div>
@@ -617,16 +629,16 @@ const Home = ({ contract }) => {
               {address === post.author.address && hasProfile ? (
                 <div className="flex space-x-2">
                   <button
-                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-blue-400 rounded-md flex items-center text-sm transition-colors"
+                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-blue-400 rounded-md flex items-center text-base transition-colors"
                     onClick={() => openEditModal(post)}
                   >
-                    <FaEdit className="mr-1" /> Edit
+                    <FaEdit className="mr-1 w-5 h-5" /> Edit
                   </button>
                   <button
-                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-red-400 rounded-md flex items-center text-sm transition-colors"
+                    className="px-3 py-1 bg-[#404040] hover:bg-[#505050] text-red-400 rounded-md flex items-center text-base transition-colors"
                     onClick={() => openDeleteModal(post)}
                   >
-                    <FaTrash className="mr-1" /> Delete
+                    <FaTrash className="mr-1 w-5 h-5" /> Delete
                   </button>
                 </div>
               ) : address !== post.author.address && hasProfile ? (
@@ -657,79 +669,92 @@ const Home = ({ contract }) => {
           {expandedPostComments[post.id] && (
             <div className="mt-4 pt-3 border-t border-[#404040]">
               {hasProfile && (
-                <div className="mb-4 flex">
-                  <textarea
-                    placeholder="Write a comment..."
-                    className="flex-grow p-2 border border-[#404040] rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm bg-[#1a1a1a] text-white"
-                    value={commentContents[post.id] || ""}
-                    onChange={(e) =>
-                      handleCommentContentChange(post.id, e.target.value)
-                    }
-                    rows="2"
-                  ></textarea>
-                  <button
-                    className="ml-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center transition-colors"
-                    onClick={() => handleAddComment(post.id)}
-                  >
-                    <FaReply className="mr-1" /> Post
-                  </button>
+                <div className="mb-6 flex items-start gap-2">
+                  <img
+                    src={profile?.avatar || "/images/avatar-default.png"}
+                    alt={profile?.username || "User"}
+                    className="w-14 h-14 rounded-full object-cover mt-2"
+                  />
+                  <div className="flex-grow relative">
+                    <textarea
+                      placeholder="Write a comment..."
+                      className="w-full p-5 pr-16 border border-[#404040] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-lg bg-[#1a1a1a] text-white placeholder-neutral-500"
+                      value={commentContents[post.id] || ""}
+                      onChange={(e) =>
+                        handleCommentContentChange(post.id, e.target.value)
+                      }
+                      rows="2"
+                    ></textarea>
+                    <button
+                      className="absolute top-1/2 right-2 p-3 hover:bg-[#404040] rounded-lg transition-all hover:scale-110"
+                      onClick={() => handleAddComment(post.id)}
+                    >
+                      <img
+                        src="/icons/send.svg"
+                        alt="Send"
+                        className="w-7 h-7"
+                      />
+                    </button>
+                  </div>
                 </div>
               )}
 
               {loadingComments[post.id] ? (
-                <div className="text-center py-4">
-                  <div className="w-6 h-6 border-2 border-t-2 border-[#404040] border-t-blue-500 rounded-full animate-spin inline-block"></div>
-                  <p className="text-neutral-400 mt-2">Loading comments...</p>
+                <div className="text-center py-6">
+                  <div className="w-8 h-8 border-2 border-t-2 border-[#404040] border-t-blue-500 rounded-full animate-spin inline-block"></div>
+                  <p className="text-neutral-400 mt-3 text-lg">
+                    Loading comments...
+                  </p>
                 </div>
               ) : postComments[post.id] && postComments[post.id].length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-5">
                   {postComments[post.id].map((comment, idx) => (
-                    <div key={idx} className="bg-[#1a1a1a] p-3 rounded-lg">
-                      <div className="flex justify-between mb-2">
-                        <div className="flex">
+                    <div key={idx} className="bg-[#1a1a1a] p-5 rounded-xl">
+                      <div className="flex justify-between mb-4">
+                        <div className="flex items-center gap-4">
                           <img
                             src={comment.author.avatar}
                             alt={comment.author.username}
-                            className="w-8 h-8 rounded-full mr-2 object-cover"
+                            className="w-12 h-12 rounded-full object-cover"
                           />
                           <div>
-                            <p className="font-medium text-sm text-white">
+                            <p className="font-semibold text-lg text-white">
                               {comment.author.username}
                             </p>
-                            <p className="text-neutral-400 text-xs">
+                            <p className="text-neutral-400 text-base">
                               {comment.timestamp}
                             </p>
                           </div>
                         </div>
                         {address === comment.author.address && (
-                          <div className="flex space-x-1">
+                          <div className="flex space-x-3">
                             <button
-                              className="text-blue-400 hover:text-blue-300"
+                              className="text-blue-400 hover:text-blue-300 p-2 hover:bg-[#404040] rounded-lg transition-all"
                               onClick={() =>
                                 openEditCommentModal(post.id, comment)
                               }
                             >
-                              <FaEdit />
+                              <FaEdit className="w-5 h-5" />
                             </button>
                             <button
-                              className="text-red-400 hover:text-red-300"
+                              className="text-red-400 hover:text-red-300 p-2 hover:bg-[#404040] rounded-lg transition-all"
                               onClick={() =>
                                 openDeleteCommentModal(post.id, comment)
                               }
                             >
-                              <FaTrash />
+                              <FaTrash className="w-5 h-5" />
                             </button>
                           </div>
                         )}
                       </div>
-                      <p className="text-neutral-300 text-sm">
+                      <p className="text-neutral-300 text-lg ml-16">
                         {comment.content}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-neutral-400 py-4">
+                <p className="text-center text-neutral-400 py-6 text-lg">
                   No comments yet
                 </p>
               )}
@@ -902,7 +927,7 @@ const Home = ({ contract }) => {
                       />
                       <label
                         htmlFor="file-input"
-                        className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] ${
+                        className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] cursor-pointer ${
                           isPosting ? "opacity-50 cursor-not-allowed" : ""
                         }`}
                       >
@@ -990,14 +1015,12 @@ const Home = ({ contract }) => {
           {/* 3. Right Column - Recent Activity */}
           {profile && (
             <div className="w-full md:w-[400px] lg:w-[500px]">
-              <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto pb-6">
+              <div className="sticky top-6 space-y-6 max-h-[calc(100vh-4rem)] h-auto pb-6">
                 <div className="bg-[#282828] rounded-xl shadow-sm p-6">
                   <h4 className="font-medium text-white mb-4">
                     Recent Followers
                   </h4>
-                  <ul className="p-0 space-y-8">
-                    {followersList}
-                  </ul>
+                  <ul className="p-0 space-y-8">{followersList}</ul>
                   <button className="w-full mt-4 text-yellow-1 hover:text-yellow-2 text-sm font-medium transition-colors">
                     See more...
                   </button>

@@ -194,8 +194,8 @@ function AppNavbar() {
                 <img
                   src={
                     isActive("/campaigns")
-                      ? "/icons/home/campaigns-active.png"
-                      : "/icons/home/campaigns.png"
+                      ? "/icons/home/campaign-active.png"
+                      : "/icons/home/campaign.png"
                   }
                   alt="All Campaigns"
                   className="w-7 h-7"
