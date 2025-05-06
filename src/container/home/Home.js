@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ethers } from "ethers";
 import {
   FaHeart,
@@ -14,6 +14,10 @@ import { useSocialContract } from "../../hooks/useSocialContract";
 import { useProfile } from "../../hooks/useProfile";
 import { IoIosCloseCircle } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation, Autoplay, Mousewheel } from "swiper/modules";
 
 const Home = ({ contract }) => {
   const [post, setPost] = useState("");
@@ -47,6 +51,80 @@ const Home = ({ contract }) => {
     { name: "DeFi Innovators", members: 6540, images: "/images/com-3.png" },
   ];
 
+  const user_clone = [
+    {
+      name: "Thanh Xuan",
+      avatar: "/images/user-1.png",
+      verified: true,
+      followedTime: "3 min ago",
+    },
+    {
+      name: "Le Duy Tan",
+      avatar: "/images/user-2.png",
+      verified: true,
+      followedTime: "5 min ago",
+    },
+    {
+      name: "Ngo Minh Nhat",
+      avatar: "/images/user-3.png",
+      verified: false,
+      followedTime: "10 min ago",
+    },
+    {
+      name: "Anh Tai",
+      avatar: "/images/user-4.png",
+      verified: true,
+      followedTime: "15 min ago",
+    },
+    {
+      name: "Anh Tuan",
+      avatar: "/images/user-5.png",
+      verified: false,
+      followedTime: "20 min ago",
+    },
+    {
+      name: "Thuy Tinh",
+      avatar: "/images/user-6.png",
+      verified: true,
+      followedTime: "25 min ago",
+    },
+    {
+      name: "Thanh Xuan",
+      avatar: "/images/user-1.png",
+      verified: true,
+      followedTime: "3 min ago",
+    },
+    {
+      name: "Le Duy Tan",
+      avatar: "/images/user-2.png",
+      verified: true,
+      followedTime: "5 min ago",
+    },
+    {
+      name: "Ngo Minh Nhat",
+      avatar: "/images/user-3.png",
+      verified: false,
+      followedTime: "10 min ago",
+    },
+    {
+      name: "Anh Tai",
+      avatar: "/images/user-4.png",
+      verified: true,
+      followedTime: "15 min ago",
+    },
+    {
+      name: "Anh Tuan",
+      avatar: "/images/user-5.png",
+      verified: false,
+      followedTime: "20 min ago",
+    },
+    {
+      name: "Thuy Tinh",
+      avatar: "/images/user-6.png",
+      verified: true,
+      followedTime: "25 min ago",
+    },
+  ];
   // Mock data for skills
   const mockSkills = [
     "JavaScript",
@@ -82,22 +160,41 @@ const Home = ({ contract }) => {
   // Get current user profile with the custom hook
   const { profile, loading: profileLoading } = useProfile(contract);
 
+  // Load posts only if user has a profile
+  useEffect(() => {
+    if (hasProfile) {
+      loadPosts();
+    }
+  }, [hasProfile, loadPosts]);
+
   // Generate recent followers from other users in posts
   useEffect(() => {
-    if (posts && posts.length > 0) {
-      const otherUsers = posts
-        .filter((post) => post.author.address !== address)
-        .map((post) => ({
-          id: post.id.toNumber(),
-          name: post.author.username,
-          address: post.author.address,
-          avatar: post.author.avatar || "https://via.placeholder.com/40",
-        }))
-        .slice(0, 5); // Take first 5 users
+    if (posts && posts.length > 0 && hasProfile) {
+      try {
+        const otherUsers = posts
+          .filter((post) => post.author.address !== address)
+          .map((post) => {
+            try {
+              return {
+                id: post.id?.toNumber() || 0, // Add fallback if toNumber() fails
+                name: post.author.username,
+                address: post.author.address,
+                avatar: post.author.avatar || "https://via.placeholder.com/40",
+              };
+            } catch (err) {
+              console.error("Error processing post:", err);
+              return null;
+            }
+          })
+          .filter(Boolean) // Remove any null entries
+          .slice(0, 5); // Take first 5 users
 
-      setRecentFollowers(otherUsers);
+        setRecentFollowers(otherUsers);
+      } catch (error) {
+        console.error("Error setting recent followers:", error);
+      }
     }
-  }, [posts, address]);
+  }, [posts, address, hasProfile]);
 
   const openEditModal = (post) => {
     setEditingPost(post);
@@ -196,11 +293,13 @@ const Home = ({ contract }) => {
             };
 
             return {
-              id: i.id.toNumber(),
+              id: typeof i.id === "object" ? i.id.toNumber() : i.id,
               content: metadataComment.comment,
               author,
               timestamp: new Date(
-                i.timestamp.toNumber() * 1000
+                (typeof i.timestamp === "object"
+                  ? i.timestamp.toNumber()
+                  : i.timestamp) * 1000
               ).toLocaleString(),
             };
           } catch (e) {
@@ -260,9 +359,13 @@ const Home = ({ contract }) => {
   const handleEditComment = async () => {
     if (!editingComment || !editCommentContent || !currentPostIdForComment)
       return;
+    const commentId =
+      typeof editingComment.id === "object"
+        ? editingComment.id.toNumber()
+        : editingComment.id;
     await editCommentInContract(
       currentPostIdForComment,
-      editingComment.id,
+      commentId,
       editCommentContent
     );
     closeEditCommentModal();
@@ -288,13 +391,14 @@ const Home = ({ contract }) => {
     setIsProcessingDelete(true);
 
     try {
-      await deleteCommentFromContract(
-        currentPostIdForComment,
-        commentToDelete.id
-      );
+      const commentId =
+        typeof commentToDelete.id === "object"
+          ? commentToDelete.id.toNumber()
+          : commentToDelete.id;
+      await deleteCommentFromContract(currentPostIdForComment, commentId);
       if (postComments[currentPostIdForComment]) {
         const updatedComments = postComments[currentPostIdForComment].filter(
-          (c) => c.id !== commentToDelete.id
+          (c) => c.id !== commentId
         );
         setPostComments({
           ...postComments,
@@ -323,7 +427,8 @@ const Home = ({ contract }) => {
 
   const handleTip = async (post) => {
     const amount = tipAmounts[post.id] || "0.1";
-    await tipPost(post.id, amount);
+    const postId = typeof post.id === "object" ? post.id.toNumber() : post.id;
+    await tipPost(postId, amount);
   };
 
   const handleImageUpload = async (e) => {
@@ -336,6 +441,96 @@ const Home = ({ contract }) => {
   };
 
   const loading = contractLoading || profileLoading;
+
+  // Memoize user_clone data
+  const memoizedUserClone = useMemo(() => user_clone, []);
+
+  // Memoize followers list
+  const followersList = useMemo(() => {
+    return memoizedUserClone.slice(0, 4).map((follower, index) => (
+      <li
+        key={index}
+        className="bg-[#1A1A1A] py-4 px-10 rounded-2xl"
+      >
+        <div className="flex items-center mb-3">
+          <div className="relative">
+            <img
+              src={follower.avatar}
+              alt={follower.name}
+              className="w-12 h-12 mr-3 object-cover"
+            />
+            {follower.verified && (
+              <div className="absolute -top-1 right-1 bg-yellow-1 rounded-full p-0.5">
+                <svg
+                  className="w-3 h-3 text-black"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-1 pl-2">
+            <p className="font-medium text-white mb-0">
+              {follower.name}
+            </p>
+            <p className="text-yellow-2 text-xs mb-0">
+              followed on you • {follower.followedTime}
+            </p>
+          </div>
+        </div>
+        <div className="flex space-x-3">
+          <button className="flex-1 bg-[#404040] hover:bg-[#505050] text-white py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+            <FaUserMinus className="mr-1.5" /> Remove
+          </button>
+          <button className="flex-1 bg-yellow-1 hover:bg-yellow-2 text-black py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
+            <FaUserPlus className="mr-1.5" /> Follow Back
+          </button>
+        </div>
+      </li>
+    ));
+  }, [memoizedUserClone]);
+
+  // Memoize friends swiper
+  const friendsSwiper = useMemo(() => {
+    return (
+      <div className="mb-6 max-w-[940px] mx-auto">
+        <Swiper
+          modules={[Autoplay, Mousewheel]}
+          spaceBetween={20}
+          slidesPerView="auto"
+          mousewheel={true}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          className="friends-swiper"
+        >
+          {memoizedUserClone?.map((user, index) => (
+            <SwiperSlide key={index} className="!w-auto cursor-pointer">
+              <div className="flex flex-col items-center p-3">
+                <div className="w-[100px] h-[100px] rounded-3xl overflow-hidden flex justify-center items-center border-3 p-2 border-yellow-1">
+                  <img
+                    src={user?.avatar || "/images/avatar-default.png"}
+                    alt={user?.name || "User"}
+                    className="w-full h-full object-cover mt-0.5"
+                  />
+                </div>
+                <p className="text-base font-medium text-white mt-3 truncate max-w-[100px]">
+                  {user?.name || "Unknown User"}
+                </p>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    );
+  }, [memoizedUserClone]);
 
   if (loading)
     return (
@@ -644,13 +839,15 @@ const Home = ({ contract }) => {
                         className="py-4 cursor-pointer flex items-center hover:bg-[#404040] transition-all duration-200 rounded-lg px-2 -mx-2"
                       >
                         <div className="flex items-center gap-4">
-                          <img 
-                            src={community.images} 
+                          <img
+                            src={community.images}
                             alt={community.name}
                             className="w-12 h-12 rounded-lg object-cover"
                           />
                           <div className="flex-1">
-                            <h5 className="text-white font-medium mb-1 group-hover:text-yellow-1 transition-colors">{community.name}</h5>
+                            <h5 className="text-white font-medium mb-1 group-hover:text-yellow-1 transition-colors">
+                              {community.name}
+                            </h5>
                             <p className="text-yellow-2 m-0 text-sm">
                               {community.members.toLocaleString()} members
                             </p>
@@ -666,115 +863,126 @@ const Home = ({ contract }) => {
 
           {/* 2. Middle Column - Post Feed */}
           <div className="w-full md:flex-1 space-y-6">
+            {/* Friends List Swiper */}
+            {profile && friendsSwiper}
+
             {hasProfile ? (
-              <div className="bg-[#282828] rounded-xl shadow-sm p-6">
-                {postError && (
-                  <div className="mb-4 bg-red-900/50 text-red-400 p-3 rounded-lg text-sm">
-                    {postError}
-                  </div>
-                )}
+              <>
+                <div className="bg-[#282828] rounded-xl shadow-sm p-6 mt-0">
+                  {postError && (
+                    <div className="mb-4 bg-red-900/50 text-red-400 p-3 rounded-lg text-sm">
+                      {postError}
+                    </div>
+                  )}
 
-                <textarea
-                  placeholder="What's on your mind?"
-                  className={`w-full p-4 border ${
-                    postError
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-[#404040] focus:ring-blue-500"
-                  } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none bg-[#1a1a1a] text-white`}
-                  value={post}
-                  onChange={(e) => {
-                    setPost(e.target.value);
-                    if (postError) setPostError("");
-                  }}
-                  rows="3"
-                  disabled={isPosting}
-                ></textarea>
-
-                <div className="flex justify-between items-center mt-4">
-                  <div className="relative cursor-pointer">
-                    <input
-                      type="file"
-                      id="file-input"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      onChange={handleImageUpload}
-                      disabled={isPosting}
-                    />
-                    <label
-                      htmlFor="file-input"
-                      className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] ${
-                        isPosting ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      Add Image
-                    </label>
-                  </div>
-                  <button
-                    className={`bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium flex items-center ${
-                      isPosting ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
-                    onClick={handlePost}
+                  <textarea
+                    placeholder="What's on your mind?"
+                    className={`w-full p-4 border ${
+                      postError
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-[#404040] focus:ring-blue-500"
+                    } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none bg-[#1a1a1a] text-white`}
+                    value={post}
+                    onChange={(e) => {
+                      setPost(e.target.value);
+                      if (postError) setPostError("");
+                    }}
+                    rows="3"
                     disabled={isPosting}
-                  >
-                    {isPosting ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Đang đăng...
-                      </>
-                    ) : (
-                      "Post"
-                    )}
-                  </button>
-                </div>
+                  ></textarea>
 
-                {imagePost && (
-                  <div className="mt-4 relative">
-                    <img
-                      src={imagePost}
-                      alt="Preview"
-                      className="relative w-full h-auto max-h-[250px] object-contain rounded-lg border border-[#404040]"
-                    />
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="relative cursor-pointer">
+                      <input
+                        type="file"
+                        id="file-input"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handleImageUpload}
+                        disabled={isPosting}
+                      />
+                      <label
+                        htmlFor="file-input"
+                        className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] ${
+                          isPosting ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                      >
+                        Add Image
+                      </label>
+                    </div>
                     <button
-                      className="absolute top-2 right-2 bg-[#282828] shadow-md text-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#404040] transition-all hover:text-red-600 hover:scale-110"
-                      onClick={() => setImagePost("")}
-                      aria-label="Remove image"
+                      className={`bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium flex items-center ${
+                        isPosting ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
+                      onClick={handlePost}
+                      disabled={isPosting}
                     >
-                      <IoIosCloseCircle size={22} />
+                      {isPosting ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Đang đăng...
+                        </>
+                      ) : (
+                        "Post"
+                      )}
                     </button>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-[#282828] rounded-xl shadow-sm p-6 text-center">
-                <p className="text-neutral-300">
-                  You must own an NFT profile to post.
-                </p>
-              </div>
-            )}
 
-            {posts.length > 0 ? (
-              posts.map((post, key) => renderPost(post, key))
+                  {imagePost && (
+                    <div className="mt-4 relative">
+                      <img
+                        src={imagePost}
+                        alt="Preview"
+                        className="relative w-full h-auto max-h-[250px] object-contain rounded-lg border border-[#404040]"
+                      />
+                      <button
+                        className="absolute top-2 right-2 bg-[#282828] shadow-md text-red-500 rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#404040] transition-all hover:text-red-600 hover:scale-110"
+                        onClick={() => setImagePost("")}
+                        aria-label="Remove image"
+                      >
+                        <IoIosCloseCircle size={22} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {posts && posts.length > 0 ? (
+                  posts.map((post, key) => renderPost(post, key))
+                ) : (
+                  <div className="bg-[#282828] rounded-xl shadow-sm p-6 text-center">
+                    <p className="text-neutral-300">No posts yet</p>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="bg-[#282828] rounded-xl shadow-sm p-6 text-center">
-                <p className="text-neutral-300">No posts yet</p>
+                <p className="text-neutral-300 mb-4">
+                  You need to create a profile to view and create posts.
+                </p>
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium"
+                >
+                  Create Profile
+                </button>
               </div>
             )}
           </div>
@@ -787,44 +995,12 @@ const Home = ({ contract }) => {
                   <h4 className="font-medium text-white mb-4">
                     Recent Followers
                   </h4>
-                  {recentFollowers.length > 0 ? (
-                    <ul className="divide-y divide-[#404040]">
-                      {recentFollowers.map((follower) => (
-                        <li key={follower.id} className="py-4">
-                          <div className="flex items-center mb-3">
-                            <img
-                              src={follower.avatar}
-                              alt={follower.name}
-                              className="w-12 h-12 rounded-full mr-3 object-cover border border-[#404040]"
-                            />
-                            <div>
-                              <p className="font-medium text-white">
-                                {follower.name}
-                              </p>
-                              <p className="text-neutral-400 text-xs font-mono">
-                                {follower.address.substring(0, 6)}...
-                                {follower.address.substring(
-                                  follower.address.length - 4
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex space-x-3">
-                            <button className="flex-1 bg-[#404040] hover:bg-[#505050] text-blue-400 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                              <FaUserPlus className="mr-1.5" /> Follow Back
-                            </button>
-                            <button className="flex-1 bg-[#404040] hover:bg-[#505050] text-red-400 py-1.5 px-3 rounded-lg text-sm font-medium flex items-center justify-center transition-all">
-                              <FaUserMinus className="mr-1.5" /> Remove
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-center text-neutral-400 py-4">
-                      No followers yet
-                    </p>
-                  )}
+                  <ul className="p-0 space-y-8">
+                    {followersList}
+                  </ul>
+                  <button className="w-full mt-4 text-yellow-1 hover:text-yellow-2 text-sm font-medium transition-colors">
+                    See more...
+                  </button>
                 </div>
               </div>
             </div>

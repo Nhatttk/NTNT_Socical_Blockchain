@@ -105,12 +105,13 @@ function AppNavbar() {
       <div className="p-4">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center no-underline">
               <img
                 src={"/icons/icon.svg"}
                 className="h-[70px] w-[70px]"
                 alt="Logo"
               />
+              <span className="text-white text-3xl font-bold ml-3">TNTN</span>
             </Link>
           </div>
           <div className="hidden md:block">
