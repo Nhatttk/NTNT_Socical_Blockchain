@@ -15,6 +15,8 @@ import { WalletProvider } from "./context/WalletContext";
 import { useWallet } from "./hooks/useWallet";
 import "./App.scss";
 import Auctions from "./container/auctions/Auctions.js";
+import Campaigns from "./container/campaigns/Campaigns.js";
+import CampaignDetails from "./container/campaigns/CampaignDetails.js";
 
 const ProtectedRoute = ({ children }) => {
   const { account, loading, initializing, isMetamaskInstalled, networkError } =
@@ -177,6 +179,29 @@ function AppNavbar() {
                 <div
                   className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
                     isActive("/auctions")
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  }`}
+                ></div>
+              </Link>
+              <Link
+                to="/campaigns"
+                className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
+                  isActive("/campaigns") ? "active" : ""
+                }`}
+              >
+                <img
+                  src={
+                    isActive("/campaigns")
+                      ? "/icons/home/campaigns-active.png"
+                      : "/icons/home/campaigns.png"
+                  }
+                  alt="All Campaigns"
+                  className="w-7 h-7"
+                />
+                <div
+                  className={`w-1.5 h-1.5 mt-1 rounded-full bg-[#FFFD02] ${
+                    isActive("/campaigns")
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
                   }`}
@@ -347,6 +372,22 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <Auctions contract={contract} />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/campaigns"
+        element={
+          <ProtectedRoute>
+            <Campaigns />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/campaign-details/:id"
+        element={
+          <ProtectedRoute>
+            <CampaignDetails />
           </ProtectedRoute>
         }
       />
