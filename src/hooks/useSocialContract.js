@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 
 // Pinata configuration
@@ -23,7 +23,7 @@ export const useSocialContract = (contract) => {
     setShowErrorModal(false);
   };
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       // Get user's address
       let address = await contract.signer.getAddress();
@@ -105,7 +105,7 @@ export const useSocialContract = (contract) => {
       showError("Lỗi khi tải bài viết: " + (error.message || "Lỗi không xác định"));
       setLoading(false);
     }
-  };
+  }, [contract]);
 
   const uploadPost = async (post, imagePost) => {
     if (!post) return;
@@ -403,10 +403,8 @@ export const useSocialContract = (contract) => {
   };
 
   useEffect(() => {
-    if (!posts) {
-      loadPosts();
-    }
-  }, []);
+    loadPosts();
+  }, [loadPosts]);
 
   return {
     posts,

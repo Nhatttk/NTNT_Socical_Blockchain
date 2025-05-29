@@ -9,9 +9,12 @@ import {
   FaReply,
   FaUserPlus,
   FaUserMinus,
+  FaRobot,
 } from "react-icons/fa";
 import { useSocialContract } from "../../hooks/useSocialContract";
 import { useProfile } from "../../hooks/useProfile";
+import { useGeminiSuggestion } from "../../hooks/useGeminiSuggestion";
+import GeminiSuggestions from "../../components/GeminiSuggestions";
 import { IoIosCloseCircle } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -42,6 +45,8 @@ const Home = ({ contract }) => {
   const [recentFollowers, setRecentFollowers] = useState([]);
   const [isPosting, setIsPosting] = useState(false);
   const [postError, setPostError] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
 
   // Default skills and communities data (to be replaced with blockchain data in future)
@@ -51,81 +56,7 @@ const Home = ({ contract }) => {
     { name: "DeFi Innovators", members: 6540, images: "/images/com-3.png" },
   ];
 
-  const user_clone = [
-    {
-      name: "Thanh Xuan",
-      avatar: "/images/user-1.png",
-      verified: true,
-      followedTime: "3 min ago",
-    },
-    {
-      name: "Le Duy Tan",
-      avatar: "/images/user-2.png",
-      verified: true,
-      followedTime: "5 min ago",
-    },
-    {
-      name: "Ngo Minh Nhat",
-      avatar: "/images/user-3.png",
-      verified: false,
-      followedTime: "10 min ago",
-    },
-    {
-      name: "Anh Tai",
-      avatar: "/images/user-4.png",
-      verified: true,
-      followedTime: "15 min ago",
-    },
-    {
-      name: "Anh Tuan",
-      avatar: "/images/user-5.png",
-      verified: false,
-      followedTime: "20 min ago",
-    },
-    {
-      name: "Thuy Tinh",
-      avatar: "/images/user-6.png",
-      verified: true,
-      followedTime: "25 min ago",
-    },
-    {
-      name: "Thanh Xuan",
-      avatar: "/images/user-1.png",
-      verified: true,
-      followedTime: "3 min ago",
-    },
-    {
-      name: "Le Duy Tan",
-      avatar: "/images/user-2.png",
-      verified: true,
-      followedTime: "5 min ago",
-    },
-    {
-      name: "Ngo Minh Nhat",
-      avatar: "/images/user-3.png",
-      verified: false,
-      followedTime: "10 min ago",
-    },
-    {
-      name: "Anh Tai",
-      avatar: "/images/user-4.png",
-      verified: true,
-      followedTime: "15 min ago",
-    },
-    {
-      name: "Anh Tuan",
-      avatar: "/images/user-5.png",
-      verified: false,
-      followedTime: "20 min ago",
-    },
-    {
-      name: "Thuy Tinh",
-      avatar: "/images/user-6.png",
-      verified: true,
-      followedTime: "25 min ago",
-    },
-  ];
-  // Mock data for skills
+  // Mock data for skills (to be replaced with blockchain data in future)
   const mockSkills = [
     "JavaScript",
     "React",
@@ -160,6 +91,15 @@ const Home = ({ contract }) => {
   // Get current user profile with the custom hook
   const { profile, loading: profileLoading } = useProfile(contract);
 
+  // Gemini AI text suggestion hook
+  const { 
+    suggestions, 
+    isLoading: suggestionsLoading, 
+    error: suggestionError,
+    getSuggestions, 
+    clearSuggestions 
+  } = useGeminiSuggestion();
+
   // Load posts only if user has a profile
   useEffect(() => {
     if (hasProfile) {
@@ -167,34 +107,75 @@ const Home = ({ contract }) => {
     }
   }, [hasProfile, loadPosts]);
 
-  // Generate recent followers from other users in posts
-  useEffect(() => {
-    if (posts && posts.length > 0 && hasProfile) {
-      try {
-        const otherUsers = posts
-          .filter((post) => post.author.address !== address)
-          .map((post) => {
-            try {
-              return {
-                id: post.id?.toNumber() || 0, // Add fallback if toNumber() fails
-                name: post.author.username,
-                address: post.author.address,
-                avatar: post.author.avatar || "https://via.placeholder.com/40",
-              };
-            } catch (err) {
-              console.error("Error processing post:", err);
-              return null;
-            }
-          })
-          .filter(Boolean) // Remove any null entries
-          .slice(0, 5); // Take first 5 users
+  // Generate unique users from posts data
+  const allUsersFromPosts = useMemo(() => {
+    if (!posts || posts.length === 0 || !hasProfile) {
+      return [];
+    }
+    
+    try {
+      // Create a map to store unique users by address
+      const uniqueUsers = new Map();
+      
+      posts.forEach((post) => {
+        try {
+          // Skip current user's posts
+          if (post.author.address === address) return;
+          
+          // Add post author to unique users
+          if (!uniqueUsers.has(post.author.address)) {
+            const postId = post.id && typeof post.id.toNumber === 'function' 
+                          ? post.id.toNumber() 
+                          : Number(post.id) || 0;
+            
+            // Use a deterministic way to set verified status based on address
+            const isVerified = post.author.address.slice(-1).charCodeAt(0) % 2 === 0;
+            
+            uniqueUsers.set(post.author.address, {
+              id: postId,
+              name: post.author.username,
+              address: post.author.address,
+              avatar: post.author.avatar || "https://via.placeholder.com/40",
+              verified: isVerified, // Deterministic verification status
+              followedTime: `${Math.floor(postId % 60) + 1} min ago`, // Deterministic follow time based on postId
+            });
+          }
 
-        setRecentFollowers(otherUsers);
-      } catch (error) {
-        console.error("Error setting recent followers:", error);
-      }
+          // Add commenters if they exist
+          if (post.comments && Array.isArray(post.comments)) {
+            post.comments.forEach((comment) => {
+              if (comment.author && comment.author.address !== address && !uniqueUsers.has(comment.author.address)) {
+                const commentId = comment.id || (comment.author.address.slice(-2).charCodeAt(0) * 10);
+                const isVerified = comment.author.address.slice(-2).charCodeAt(0) % 2 === 0;
+                
+                uniqueUsers.set(comment.author.address, {
+                  id: commentId,
+                  name: comment.author.username,
+                  address: comment.author.address,
+                  avatar: comment.author.avatar || "https://via.placeholder.com/40",
+                  verified: isVerified,
+                  followedTime: `${Math.floor(commentId % 60) + 1} min ago`,
+                });
+              }
+            });
+          }
+        } catch (err) {
+          console.error("Error processing post:", err);
+        }
+      });
+
+      return Array.from(uniqueUsers.values());
+    } catch (error) {
+      console.error("Error setting users:", error);
+      return [];
     }
   }, [posts, address, hasProfile]);
+
+  // Update states when allUsersFromPosts changes
+  useEffect(() => {
+    setAllUsers(allUsersFromPosts);
+    setRecentFollowers(allUsersFromPosts.slice(0, 5));
+  }, [allUsersFromPosts]);
 
   const openEditModal = (post) => {
     setEditingPost(post);
@@ -426,9 +407,20 @@ const Home = ({ contract }) => {
   };
 
   const handleTip = async (post) => {
-    const amount = tipAmounts[post.id] || "0.1";
-    const postId = typeof post.id === "object" ? post.id.toNumber() : post.id;
-    await tipPost(postId, amount);
+    try {
+      const amount = tipAmounts[post.id] || "0.1";
+      const postId = typeof post.id === "object" ? post.id.toNumber() : post.id;
+      const amountInWei = ethers.utils.parseEther(amount);
+      
+      // Call the contract's tipPostOwner function
+      const tx = await contract.tipPostOwner(postId, { value: amountInWei });
+      await tx.wait();
+
+      // Reload posts to show updated tip amount
+      await loadPosts();
+    } catch (error) {
+      console.error("Error tipping post:", error);
+    }
   };
 
   const handleImageUpload = async (e) => {
@@ -440,14 +432,108 @@ const Home = ({ contract }) => {
     }
   };
 
+  // Gemini AI suggestion handlers
+  const handlePostContentChange = (e) => {
+    const value = e.target.value;
+    setPost(value);
+    
+    // Clear post error if user is typing
+    if (postError) setPostError("");
+    
+    // Get AI suggestions when user has typed enough text
+    if (value.length >= 10) {
+      getSuggestions(value);
+      setShowSuggestions(true);
+    } else {
+      clearSuggestions();
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion, forcedAction = null) => {
+    // Smart suggestion insertion logic
+    const currentPost = post.trim();
+    let newPost;
+
+    // Determine action - use forced action if provided, otherwise smart detection
+    let action = forcedAction;
+    if (!action) {
+      // If the suggestion starts with common sentence starters or seems like a complete thought
+      const isCompleteSuggestion = suggestion.match(/^(What|How|Why|When|Let|This|Excited|Looking|Thanks|Hope|Can't|I|We|The)/i);
+      
+      // If current post ends with incomplete word or current post is very short, suggest replacement
+      const words = currentPost.split(' ');
+      const lastWord = words[words.length - 1];
+      const seemsIncomplete = lastWord && lastWord.length > 0 && !lastWord.match(/[.!?]$/);
+      
+      if (currentPost.length < 20 && isCompleteSuggestion) {
+        action = 'replace';
+      } else if (seemsIncomplete && currentPost.length < 50) {
+        action = 'replace';
+      } else {
+        action = 'append';
+      }
+    }
+
+    // Apply the action
+    if (action === 'replace') {
+      newPost = suggestion;
+    } else {
+      // Append to existing text
+      if (currentPost && !currentPost.endsWith(' ') && !currentPost.endsWith('.') && !currentPost.endsWith('!') && !currentPost.endsWith('?')) {
+        newPost = currentPost + ' ' + suggestion;
+      } else {
+        newPost = currentPost + suggestion;
+      }
+    }
+    
+    setPost(newPost);
+    setShowSuggestions(false);
+    clearSuggestions();
+    
+    // Focus back on textarea after selection
+    setTimeout(() => {
+      const textarea = document.querySelector('textarea[placeholder="What\'s on your mind?"]');
+      if (textarea) {
+        textarea.focus();
+        // Set cursor to end
+        textarea.selectionStart = textarea.selectionEnd = newPost.length;
+      }
+    }, 100);
+  };
+
+  const handleCloseSuggestions = () => {
+    setShowSuggestions(false);
+    clearSuggestions();
+  };
+
+  const toggleSuggestions = () => {
+    if (post.length >= 10) {
+      if (showSuggestions) {
+        handleCloseSuggestions();
+      } else {
+        getSuggestions(post);
+        setShowSuggestions(true);
+      }
+    }
+  };
+
   const loading = contractLoading || profileLoading;
 
-  // Memoize user_clone data
-  const memoizedUserClone = useMemo(() => user_clone, []);
+  // Memoize real users data from blockchain
+  const memoizedUsers = useMemo(() => allUsers, [allUsers]);
 
   // Memoize followers list
   const followersList = useMemo(() => {
-    return memoizedUserClone.slice(0, 4).map((follower, index) => (
+    if (memoizedUsers.length === 0) {
+      return (
+        <li className="bg-[#1A1A1A] py-4 px-10 rounded-2xl text-center">
+          <p className="text-gray-400 text-sm">No followers yet. Start interacting with other users!</p>
+        </li>
+      );
+    }
+    
+    return memoizedUsers.slice(0, 4).map((follower, index) => (
       <li key={index} className="bg-[#1A1A1A] py-4 px-10 rounded-2xl">
         <div className="flex items-center mb-3">
           <div className="relative">
@@ -489,10 +575,20 @@ const Home = ({ contract }) => {
         </div>
       </li>
     ));
-  }, [memoizedUserClone]);
+  }, [memoizedUsers]);
 
   // Memoize friends swiper
   const friendsSwiper = useMemo(() => {
+    if (memoizedUsers.length === 0) {
+      return (
+        <div className="mb-6 max-w-[940px] mx-auto">
+          <div className="text-center py-8">
+            <p className="text-gray-400 text-lg">No users to show yet. Create posts and interact with others!</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="mb-6 max-w-[940px] mx-auto">
         <Swiper
@@ -506,7 +602,7 @@ const Home = ({ contract }) => {
           }}
           className="friends-swiper"
         >
-          {memoizedUserClone?.map((user, index) => (
+          {memoizedUsers?.map((user, index) => (
             <SwiperSlide key={index} className="!w-auto cursor-pointer">
               <div className="flex flex-col items-center p-3">
                 <div className="w-[100px] h-[100px] rounded-3xl overflow-hidden flex justify-center items-center border-3 p-2 border-yellow-1">
@@ -525,7 +621,7 @@ const Home = ({ contract }) => {
         </Swiper>
       </div>
     );
-  }, [memoizedUserClone]);
+  }, [memoizedUsers]);
 
   if (loading)
     return (
@@ -900,40 +996,72 @@ const Home = ({ contract }) => {
                     </div>
                   )}
 
-                  <textarea
-                    placeholder="What's on your mind?"
-                    className={`w-full p-4 border ${
-                      postError
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-[#404040] focus:ring-blue-500"
-                    } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none bg-[#1a1a1a] text-white`}
-                    value={post}
-                    onChange={(e) => {
-                      setPost(e.target.value);
-                      if (postError) setPostError("");
-                    }}
-                    rows="3"
-                    disabled={isPosting}
-                  ></textarea>
+                  <div className="relative">
+                    <textarea
+                      placeholder="What's on your mind?"
+                      className={`w-full p-4 border ${
+                        postError
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-[#404040] focus:ring-blue-500"
+                      } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none bg-[#1a1a1a] text-white`}
+                      value={post}
+                      onChange={handlePostContentChange}
+                      rows="3"
+                      disabled={isPosting}
+                    ></textarea>
+
+                    <GeminiSuggestions
+                      suggestions={suggestions}
+                      isLoading={suggestionsLoading}
+                      error={suggestionError}
+                      onSuggestionClick={handleSuggestionClick}
+                      onClose={handleCloseSuggestions}
+                      isVisible={showSuggestions}
+                      currentText={post}
+                    />
+                  </div>
 
                   <div className="flex justify-between items-center mt-4">
-                    <div className="relative cursor-pointer">
-                      <input
-                        type="file"
-                        id="file-input"
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        onChange={handleImageUpload}
-                        disabled={isPosting}
-                      />
-                      <label
-                        htmlFor="file-input"
-                        className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] cursor-pointer ${
-                          isPosting ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                    <div className="flex items-center gap-3">
+                      <div className="relative cursor-pointer">
+                        <input
+                          type="file"
+                          id="file-input"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={handleImageUpload}
+                          disabled={isPosting}
+                        />
+                        <label
+                          htmlFor="file-input"
+                          className={`bg-[#404040] hover:bg-[#505050] text-neutral-300 py-2 px-4 rounded-lg text-sm transition-all flex items-center border border-[#505050] cursor-pointer ${
+                            isPosting ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          Add Image
+                        </label>
+                      </div>
+                      
+                      {/* AI Suggestions Toggle Button */}
+                      <button
+                        onClick={toggleSuggestions}
+                        disabled={isPosting || post.length < 10}
+                        className={`relative flex items-center gap-2 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                          showSuggestions
+                            ? "bg-blue-600 text-white"
+                            : post.length >= 10
+                            ? "bg-[#404040] hover:bg-[#505050] text-blue-400 border border-blue-500/30"
+                            : "bg-[#2a2a2a] text-gray-500 cursor-not-allowed"
+                        } ${isPosting ? "opacity-50 cursor-not-allowed" : ""}`}
+                        title={post.length < 10 ? "Type at least 10 characters to get AI suggestions" : "Get AI suggestions"}
                       >
-                        Add Image
-                      </label>
+                        <FaRobot className={`text-sm ${showSuggestions ? "animate-pulse" : ""}`} />
+                        <span>AI Assist</span>
+                        {suggestionsLoading && (
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full animate-ping"></div>
+                        )}
+                      </button>
                     </div>
+                    
                     <button
                       className={`bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-all font-medium flex items-center ${
                         isPosting ? "opacity-70 cursor-not-allowed" : ""

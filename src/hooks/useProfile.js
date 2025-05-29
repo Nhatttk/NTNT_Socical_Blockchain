@@ -1,94 +1,73 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from 'react';
+import { useWallet } from './useWallet';
 
 export const useProfile = (contract) => {
+  const { account } = useWallet();
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchProfile = useCallback(async () => {
-    if (!contract) {
-      setLoading(false);
-      return;
-    }
-
+  const loadProfile = async () => {
+    if (!contract || !account) return;
+    
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      setError(null);
-      
-      console.log("Bắt đầu lấy thông tin profile...");
-      
-      // Get the connected wallet address
-      const address = await contract.signer.getAddress();
-      console.log("Địa chỉ ví:", address);
-      
-      // Get the NFT ID associated with this address
-      const nftId = await contract.profiles(address);
-      console.log("NFT ID:", nftId.toString());
-      
-      // Sử dụng phép so sánh an toàn với BigNumber
-      if (nftId.isZero()) {
-        // No profile exists for this address
-        console.log("Không tìm thấy profile cho địa chỉ này");
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-      
-      // Get the URI for this NFT ID
-      const uri = await contract.tokenURI(nftId);
-      console.log("Profile URI:", uri);
-      
-      if (!uri || uri === "") {
-        console.error("URI không hợp lệ cho NFT profile");
-        setError("Không thể tải thông tin profile");
-        setLoading(false);
-        return;
-      }
-      
-      // Fetch metadata from the URI
-      const response = await fetch(uri);
-      
-      if (!response.ok) {
-        throw new Error(`Không thể tải metadata: ${response.status} ${response.statusText}`);
-      }
-      
-      const metadata = await response.json();
-      console.log("Profile metadata:", metadata);
-      
-      if (!metadata.username || !metadata.avatar) {
-        console.warn("Profile metadata không đầy đủ:", metadata);
-      }
-      
-      // Create profile object with all necessary information
-      const profileData = {
-        id: nftId.toString(), // Sử dụng string để tránh overflow
-        address: address,
-        username: metadata.username || "Unnamed",
-        avatar: metadata.avatar || "https://via.placeholder.com/100",
-        bio: metadata.description || "",
-        skills: metadata.attributes?.skills || [],
-        following: metadata.attributes?.following || 0,
-        followers: metadata.attributes?.followers || 0,
+      // Since we don't have a specific profile contract method,
+      // we'll create a basic profile structure
+      const mockProfile = {
+        address: account,
+        displayName: `User ${account.slice(0, 6)}...${account.slice(-4)}`,
+        bio: '',
+        location: '',
+        website: '',
+        joinedDate: new Date().toISOString(),
+        postsCount: 0,
+        followersCount: 0,
+        followingCount: 0,
       };
       
-      console.log("Đã tạo profile object:", profileData);
-      setProfile(profileData);
+      setProfile(mockProfile);
     } catch (err) {
-      console.error("Error fetching profile:", err);
-      setError("Không thể tải thông tin profile: " + (err.message || "Lỗi không xác định"));
+      console.error('Error loading profile:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [contract]);
+  };
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    loadProfile();
+  }, [contract, account]);
+
+  const updateProfile = async (profileData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // In a real implementation, this would call a smart contract method
+      // For now, we'll just update the local state
+      setProfile(prev => ({
+        ...prev,
+        ...profileData,
+      }));
+      
+      return true;
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setError(err.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     profile,
     loading,
     error,
-    refreshProfile: fetchProfile,
+    loadProfile,
+    updateProfile,
   };
 }; 

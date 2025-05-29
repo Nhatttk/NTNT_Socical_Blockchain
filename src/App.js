@@ -11,6 +11,7 @@ import {
 import Home from "./container/home/Home.js";
 import Profile from "./container/profile/Profile.js";
 import Connect from "./container/connect/Connect.js";
+import Setting from "./container/setting/Setting.js";
 import { WalletProvider } from "./context/WalletContext";
 import { useWallet } from "./hooks/useWallet";
 import "./App.scss";
@@ -111,7 +112,7 @@ function AppNavbar() {
                 className="h-[70px] w-[70px]"
                 alt="Logo"
               />
-              <span className="text-white text-3xl font-bold ml-3">TNTN</span>
+              <span className="text-white text-3xl font-bold ml-3">Crowd Funding</span>
             </Link>
           </div>
           <div className="hidden md:block">
@@ -162,7 +163,7 @@ function AppNavbar() {
                   }`}
                 ></div>
               </Link>
-              <Link
+              {/* <Link
                 to="/auctions"
                 className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
                   isActive("/auctions") ? "active" : ""
@@ -184,7 +185,7 @@ function AppNavbar() {
                       : "opacity-0 group-hover:opacity-100"
                   }`}
                 ></div>
-              </Link>
+              </Link> */}
               <Link
                 to="/campaigns"
                 className={`group px-3 py-2 rounded-md text-sm font-medium flex flex-col items-center gap-1 relative ${
@@ -396,9 +397,7 @@ function AppContent() {
         path="/setting"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-[#1a1a1a] p-4">
-              <h1 className="text-white text-2xl">Setting Page</h1>
-            </div>
+            <Setting contract={contract} />
           </ProtectedRoute>
         }
       />
